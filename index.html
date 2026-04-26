@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>ICU Smart CDSS</title>
+
+<style>
+body {font-family:Arial;background:#eef2f7;padding:20px;}
+.container {max-width:1300px;margin:auto;}
+h1{text-align:center;color:#003049;}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+gap:15px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+label{display:block;margin-top:8px;font-weight:bold;}
+small{font-size:12px;color:#666;}
+select,input{width:100%;padding:7px;margin-top:4px;}
+
+button{
+width:100%;padding:14px;margin-top:15px;
+border:none;border-radius:10px;
+font-size:16px;
+}
+.btn-primary{background:#0077b6;color:white;}
+.btn-secondary{background:#adb5bd;color:white;}
+
+.result{
+margin-top:20px;padding:20px;
+background:#edf6f9;border-radius:12px;
+}
+
+.normal{background:#d4edda;padding:8px;border-radius:8px;margin:5px;}
+.warning{background:#fff3cd;padding:8px;border-radius:8px;margin:5px;}
+.danger{background:#f8d7da;padding:8px;border-radius:8px;margin:5px;}
+
+.chat-box{
+margin-top:10px;
+background:white;
+padding:10px;
+border-radius:10px;
+height:200px;
+overflow:auto;
+}
+.chat-ai{
+background:#e0fbfc;
+padding:10px;
+border-radius:10px;
+margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🧠 ICU SMART CDSS</h1>
+
+<div class="card">
+<h3>👤 Identitas</h3>
+<input id="nama" placeholder="Nama">
+<input id="rm" placeholder="No RM">
+</div>
+
+<div class="grid">
+
+<!-- MORSE -->
+<div class="card">
+<h3>⚠️ Morse Fall Scale</h3>
+<select id="m1"><option value="0">Riwayat jatuh: Tidak</option><option value="25">Ya</option></select>
+<select id="m2"><option value="0">Diagnosis sekunder: Tidak</option><option value="15">Ya</option></select>
+<select id="m3"><option value="0">Alat bantu: Tidak</option><option value="15">Tongkat</option><option value="30">Furniture</option></select>
+<select id="m4"><option value="0">IV line: Tidak</option><option value="20">Ya</option></select>
+<select id="m5"><option value="0">Gaya jalan normal</option><option value="10">Lemah</option><option value="20">Terganggu</option></select>
+<select id="m6"><option value="0">Mental sadar</option><option value="15">Overestimate</option></select>
+</div>
+
+<!-- BRADEN -->
+<div class="card">
+<h3>🛏️ Braden Scale</h3>
+<select id="b1"><option value="1">Sensorik buruk</option><option value="4">Normal</option></select>
+<select id="b2"><option value="1">Lembab</option><option value="4">Normal</option></select>
+<select id="b3"><option value="1">Bed rest</option><option value="4">Aktif</option></select>
+<select id="b4"><option value="1">Imobilisasi</option><option value="4">Bebas</option></select>
+<select id="b5"><option value="1">Nutrisi buruk</option><option value="4">Baik</option></select>
+<select id="b6"><option value="1">Gesekan tinggi</option><option value="3">Normal</option></select>
+</div>
+
+<!-- RASS -->
+<div class="card">
+<h3>🧠 RASS</h3>
+<select id="rass">
+<option value="-5">-5 Tidak respons</option>
+<option value="-4">-4 Sedasi dalam</option>
+<option value="-3">-3 Sedasi sedang</option>
+<option value="-2">-2 Sedasi ringan</option>
+<option value="-1">-1 Mengantuk</option>
+<option value="0">0 Sadar</option>
+<option value="1">+1 Gelisah</option>
+<option value="2">+2 Agitasi</option>
+<option value="3">+3 Agitasi berat</option>
+<option value="4">+4 Sangat agitasi</option>
+</select>
+</div>
+
+<!-- BPS -->
+<div class="card">
+<h3>💢 BPS</h3>
+<select id="p1">
+<option value="1">Relaks</option>
+<option value="2">Tegang</option>
+<option value="3">Grimace</option>
+<option value="4">Meringis</option>
+</select>
+
+<select id="p2">
+<option value="1">Tidak ada</option>
+<option value="2">Fleksi ringan</option>
+<option value="3">Fleksi kuat</option>
+<option value="4">Tarikan kuat</option>
+</select>
+
+<select id="p3">
+<option value="1">Toleransi ventilator</option>
+<option value="2">Batuk ringan</option>
+<option value="3">Melawan ventilator</option>
+<option value="4">Tidak sinkron</option>
+</select>
+</div>
+
+<!-- APACHE -->
+<div class="card">
+<h3>📊 APACHE II (REAL INPUT)</h3>
+<input id="temp" type="number" placeholder="Suhu">
+<input id="map" type="number" placeholder="MAP">
+<input id="hr" type="number" placeholder="HR">
+<input id="rr" type="number" placeholder="RR">
+<input id="pao2" type="number" placeholder="PaO2/FiO2">
+<input id="ph" type="number" placeholder="pH">
+<input id="na" type="number" placeholder="Na">
+<input id="k" type="number" placeholder="K">
+<input id="cr" type="number" placeholder="Kreatinin">
+<input id="hct" type="number" placeholder="Hematokrit">
+<input id="wbc" type="number" placeholder="Leukosit">
+<input id="gcs" type="number" placeholder="GCS">
+<input id="age" type="number" placeholder="Usia">
+<select id="chronic"><option value="0">Chronic Tidak</option><option value="5">Ya</option></select>
+</div>
+
+</div>
+
+<button class="btn-primary" onclick="hitung()">🔍 Analisis ICU</button>
+<button class="btn-secondary" onclick="window.print()">📄 Export PDF</button>
+
+<div id="hasil" class="result"></div>
+
+</div>
+
+<script>
+
+// scoring sederhana (bisa upgrade nanti)
+function scoreTemp(t){ if(t>=39||t<=30)return 3; return 0;}
+function scoreMAP(m){ if(m<70)return 2; return 0;}
+
+async function hitung(){
+
+let morse = +m1.value+ +m2.value+ +m3.value+ +m4.value+ +m5.value+ +m6.value;
+let braden = +b1.value+ +b2.value+ +b3.value+ +b4.value+ +b5.value+ +b6.value;
+let rassVal = +rass.value;
+let bps = +p1.value+ +p2.value+ +p3.value;
+
+let apache = scoreTemp(+temp.value)+scoreMAP(+map.value)+(15-gcs.value);
+
+let mortalitas = apache>20?">40%":apache>10?"10-40%":"<10%";
+
+let rassKet = rassVal<=-3?"Sedasi dalam":rassVal<0?"Sedasi ringan":rassVal==0?"Normal":"Agitasi";
+let bpsKet = bps<=4?"Tidak nyeri":bps<=6?"Nyeri ringan":"Nyeri berat";
+
+hasil.innerHTML = `
+<h2>📋 HASIL ICU</h2>
+
+<div class="${morse>=45?"danger":morse>=25?"warning":"normal"}">Morse: ${morse}</div>
+<div class="${braden<=12?"danger":braden<=16?"warning":"normal"}">Braden: ${braden}</div>
+<div class="${(rassVal>=2||rassVal<=-3)?"danger":"normal"}">RASS: ${rassVal} (${rassKet})</div>
+<div class="${bps>=6?"danger":"normal"}">BPS: ${bps} (${bpsKet})</div>
+<div class="${apache>=20?"danger":"warning"}">APACHE: ${apache}</div>
+
+<h3>📊 Interpretasi</h3>
+Mortalitas: ${mortalitas}
+
+<h3>🤖 AI Dokter ICU</h3>
+<div id="chat" class="chat-box">
+<div class="chat-ai">⏳ Menganalisis...</div>
+</div>
+`;
+
+// AI
+try{
+let res = await fetch("https://icu-ai.onrender.com/ai",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({data:`APACHE ${apache}, RASS ${rassVal}, BPS ${bps}`})
+});
+let json = await res.json();
+
+document.getElementById("chat").innerHTML += `<div class="chat-ai">👨‍⚕️ ${json.result}</div>`;
+}catch{
+document.getElementById("chat").innerHTML += `<div class="chat-ai">AI tidak tersedia</div>`;
+}
+
+}
+</script>
+
+</body>
+</html>
