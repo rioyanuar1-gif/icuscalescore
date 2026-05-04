@@ -137,55 +137,140 @@ let warna = "";
 let interpretasi = "";
 let rekomendasi = "";
 
-// INTERPRETASI STANDAR
+// SDKI SLKI SIKI
+let sdki = "";
+let slki = "";
+let siki = [];
+
+// =====================
+// INTERPRETASI MORSE
+// =====================
 if(total <= 24){
 kategori = "Risiko Rendah";
 warna = "normal";
 interpretasi = "Risiko jatuh minimal";
+
+// SDKI
+sdki = "Tidak ada masalah keperawatan prioritas (risiko jatuh rendah)";
+
+// SLKI
+slki = `
+• Status keselamatan pasien adekuat
+• Tidak terjadi jatuh
+`;
+
+// SIKI
+siki.push("Identifikasi risiko jatuh dasar");
+siki.push("Edukasi pasien & keluarga");
+siki.push("Pastikan lingkungan aman");
+
+// rekomendasi umum
 rekomendasi = `
 • Perawatan standar
-• Edukasi pasien & keluarga
-• Pastikan lingkungan aman
+• Edukasi
 `;
+
 }
 
 else if(total <= 44){
 kategori = "Risiko Sedang";
 warna = "warning";
 interpretasi = "Risiko jatuh meningkat";
-rekomendasi = `
-• Pasang label risiko jatuh
-• Edukasi pasien
-• Pastikan bel pasien dalam jangkauan
-• Supervisi saat mobilisasi
+
+// SDKI
+sdki = "Risiko Jatuh";
+
+// SLKI
+slki = `
+• Tidak terjadi jatuh
+• Kesadaran keselamatan meningkat
+• Perilaku pencegahan jatuh meningkat
 `;
+
+// SIKI dasar
+siki.push("Identifikasi faktor risiko jatuh");
+siki.push("Edukasi pasien & keluarga");
+siki.push("Pasang tanda risiko jatuh");
+siki.push("Pastikan bel dalam jangkauan");
+siki.push("Supervisi saat mobilisasi");
+
+rekomendasi = `
+• Label risiko jatuh
+• Supervisi mobilisasi
+`;
+
 }
 
 else{
 kategori = "Risiko Tinggi";
 warna = "danger";
 interpretasi = "Risiko jatuh tinggi ⚠️";
+
+// SDKI
+sdki = "Risiko Jatuh";
+
+// SLKI
+slki = `
+• Tidak terjadi jatuh
+• Cedera tidak terjadi
+• Keamanan pasien optimal
+`;
+
+// SIKI intensif
+siki.push("Pengawasan ketat");
+siki.push("Pasang side rail");
+siki.push("Tempatkan pasien dekat nurse station");
+siki.push("Bantuan penuh saat mobilisasi");
+siki.push("Gunakan alas kaki anti-slip");
+siki.push("Evaluasi risiko jatuh berkala");
+
 rekomendasi = `
 • 🚨 Pengawasan ketat
-• Gunakan bed rail
-• Tempatkan pasien dekat nurse station
-• Bantuan saat mobilisasi
-• Gunakan alas anti-slip
+• Bed rail
 `;
+
 }
 
-// ANALISIS FAKTOR RISIKO
+// =====================
+// INTERVENSI TAMBAHAN BERDASARKAN FAKTOR
+// =====================
 let catatan = [];
 
-if(m1 > 0) catatan.push("Riwayat jatuh");
-if(m2 > 0) catatan.push("Diagnosis multipel");
-if(m3 >= 15) catatan.push("Ketergantungan alat bantu");
-if(m4 > 0) catatan.push("Terpasang infus");
-if(m5 >= 10) catatan.push("Gangguan berjalan");
-if(m6 > 0) catatan.push("Gangguan persepsi diri");
+if(m1 > 0){
+catatan.push("Riwayat jatuh");
+siki.push("Kaji ulang penyebab jatuh sebelumnya");
+}
 
+if(m2 > 0){
+catatan.push("Diagnosis multipel");
+siki.push("Koordinasi tim multidisiplin");
+}
+
+if(m3 >= 15){
+catatan.push("Ketergantungan alat bantu");
+siki.push("Pastikan alat bantu aman digunakan");
+}
+
+if(m4 > 0){
+catatan.push("Terpasang infus");
+siki.push("Amankan jalur infus saat mobilisasi");
+}
+
+if(m5 >= 10){
+catatan.push("Gangguan berjalan");
+siki.push("Latihan mobilisasi bertahap");
+}
+
+if(m6 > 0){
+catatan.push("Gangguan persepsi diri");
+siki.push("Orientasi realita secara berkala");
+}
+
+// =====================
 // OUTPUT
+// =====================
 document.getElementById("hasilMorse").innerHTML = `
+
 <div class="${warna}">
 <h3>📊 HASIL MORSE</h3>
 <b>Skor: ${total}</b><br>
@@ -195,16 +280,26 @@ Kategori: ${kategori}
 <h4>📌 Interpretasi</h4>
 ${interpretasi}
 
-<h4>💊 Rekomendasi</h4>
+<h4>🩺 SDKI (Masalah Keperawatan)</h4>
+<b>${sdki}</b>
+
+<h4>🎯 SLKI (Luaran)</h4>
+<pre>${slki}</pre>
+
+<h4>🛠️ SIKI (Intervensi)</h4>
+<ul>${siki.map(x=>"<li>"+x+"</li>").join("")}</ul>
+
+<h4>💊 Rekomendasi Umum</h4>
 <pre>${rekomendasi}</pre>
 
-<h4>🔍 Faktor Risiko</h4>
+<h4>🔍 Faktor Risiko Spesifik</h4>
 <ul>${catatan.map(x=>"<li>"+x+"</li>").join("")}</ul>
+
 `;
 
 }
 </script>
-
+  
 <!-- BRADEN -->
 <div class="card">
 <h3>🛏️ Skala Braden</h3>
@@ -275,39 +370,148 @@ let total = b1 + b2 + b3 + b4 + b5 + b6;
 
 let kategori, warna, rekomendasi;
 
-// INTERPRETASI
+// SDKI SLKI SIKI
+let sdki = "";
+let slki = "";
+let siki = [];
+
+// =====================
+// INTERPRETASI BRADEN
+// =====================
 if(total <= 9){
 kategori = "Sangat Tinggi";
 warna = "danger";
-rekomendasi = "Reposisi ≤2 jam, kasur anti-dekubitus, monitoring ketat, nutrisi tinggi protein";
+
+// SDKI
+sdki = "Risiko Kerusakan Integritas Kulit";
+
+// SLKI
+slki = `
+• Integritas kulit terjaga
+• Tidak terjadi luka tekan
+• Perfusi jaringan adekuat
+`;
+
+// SIKI intensif
+siki.push("Reposisi ≤ 2 jam");
+siki.push("Gunakan kasur anti-dekubitus");
+siki.push("Monitoring kulit tiap shift");
+siki.push("Manajemen nutrisi tinggi protein");
+siki.push("Jaga kulit tetap kering");
+
+rekomendasi = "Intervensi intensif pencegahan dekubitus";
+
 }
+
 else if(total <= 12){
 kategori = "Tinggi";
 warna = "danger";
-rekomendasi = "Reposisi tiap 2 jam, matras khusus, observasi kulit harian";
+
+// SDKI
+sdki = "Risiko Kerusakan Integritas Kulit";
+
+// SLKI
+slki = `
+• Tidak terjadi luka tekan
+• Kulit tetap utuh
+`;
+
+// SIKI
+siki.push("Reposisi tiap 2 jam");
+siki.push("Gunakan matras khusus");
+siki.push("Observasi kulit harian");
+siki.push("Jaga kelembaban kulit");
+
+rekomendasi = "Pencegahan ketat dekubitus";
+
 }
+
 else if(total <= 16){
 kategori = "Sedang";
 warna = "warning";
-rekomendasi = "Reposisi 2–3 jam, edukasi mobilisasi, pantau area tekan";
+
+// SDKI
+sdki = "Risiko Kerusakan Integritas Kulit";
+
+// SLKI
+slki = `
+• Risiko luka tekan menurun
+• Integritas kulit terjaga
+`;
+
+// SIKI
+siki.push("Reposisi 2–3 jam");
+siki.push("Edukasi mobilisasi");
+siki.push("Pantau area tekanan");
+
+rekomendasi = "Pencegahan moderat";
+
 }
+
 else{
 kategori = "Rendah";
 warna = "normal";
-rekomendasi = "Perawatan standar dan mobilisasi rutin";
+
+// SDKI
+sdki = "Tidak ada masalah prioritas (risiko rendah)";
+
+// SLKI
+slki = `
+• Kulit tetap utuh
+• Tidak terjadi luka tekan
+`;
+
+// SIKI
+siki.push("Mobilisasi rutin");
+siki.push("Perawatan kulit dasar");
+
+rekomendasi = "Perawatan standar";
+
 }
 
-// ANALISIS RISIKO DETAIL
+// =====================
+// ANALISIS FAKTOR RISIKO
+// =====================
 let catatan = [];
 
-if(b1 <= 2) catatan.push("Gangguan sensorik");
-if(b2 <= 2) catatan.push("Kulit lembab");
-if(b3 <= 2) catatan.push("Aktivitas rendah");
-if(b4 <= 2) catatan.push("Mobilitas terbatas");
-if(b5 <= 2) catatan.push("Nutrisi buruk");
-if(b6 <= 2) catatan.push("Gesekan tinggi");
+if(b1 <= 2){
+catatan.push("Gangguan sensorik");
+siki.push("Kaji respon nyeri/tekanan");
+}
 
+if(b2 <= 2){
+catatan.push("Kulit lembab");
+siki.push("Manajemen inkontinensia");
+siki.push("Ganti linen secara berkala");
+}
+
+if(b3 <= 2){
+catatan.push("Aktivitas rendah");
+siki.push("Latihan mobilisasi bertahap");
+}
+
+if(b4 <= 2){
+catatan.push("Mobilitas terbatas");
+siki.push("Bantu perubahan posisi");
+}
+
+if(b5 <= 2){
+catatan.push("Nutrisi buruk");
+siki.push("Kolaborasi ahli gizi");
+siki.push("Monitoring intake nutrisi");
+}
+
+if(b6 <= 2){
+catatan.push("Gesekan tinggi");
+siki.push("Gunakan alat bantu transfer");
+siki.push("Hindari gesekan saat reposisi");
+}
+
+// =====================
+// OUTPUT
+// =====================
 document.getElementById("hasilBraden").innerHTML = `
+
 <div class="${warna}">
 <h3>📊 HASIL BRADEN</h3>
 <b>Skor: ${total}</b><br>
@@ -317,11 +521,21 @@ Kategori: ${kategori}
 <h4>📌 Interpretasi</h4>
 Risiko dekubitus: <b>${kategori}</b>
 
-<h4>💊 Rekomendasi</h4>
+<h4>🩺 SDKI (Masalah Keperawatan)</h4>
+<b>${sdki}</b>
+
+<h4>🎯 SLKI (Luaran)</h4>
+<pre>${slki}</pre>
+
+<h4>🛠️ SIKI (Intervensi)</h4>
+<ul>${[...new Set(siki)].map(x=>"<li>"+x+"</li>").join("")}</ul>
+
+<h4>💊 Rekomendasi Umum</h4>
 ${rekomendasi}
 
-<h4>🔍 Faktor Risiko</h4>
+<h4>🔍 Faktor Risiko Spesifik</h4>
 <ul>${catatan.map(x=>"<li>"+x+"</li>").join("")}</ul>
+
 `;
 
 }
@@ -550,6 +764,158 @@ ${rekomendasi}
 
 <h4>🔍 Analisis Faktor</h4>
 <ul>${catatan.map(x=>"<li>"+x+"</li>").join("")}</ul>
+`;
+
+}
+</script>
+
+<!-- VAS NYERI -->
+<div class="card">
+<h3>😖 Skala Nyeri VAS (0–10)</h3>
+
+<label>Skor Nyeri (0 = tidak nyeri, 10 = sangat nyeri)</label>
+<input type="range" id="vas" min="0" max="10" value="0" oninput="updateVAS()">
+
+<div id="vasValue" style="font-size:20px; margin-top:10px;">0 😄</div>
+
+<button onclick="hitungVAS()">Analisis Nyeri</button>
+
+<div id="hasilVAS" class="result"></div>
+</div>
+
+<script>
+// UPDATE EMOJI REALTIME
+function updateVAS(){
+let vas = document.getElementById("vas").value;
+let emoji = "";
+
+if(vas == 0) emoji = "😄";
+else if(vas <= 3) emoji = "🙂";
+else if(vas <= 6) emoji = "😐";
+else if(vas <= 8) emoji = "😣";
+else emoji = "😭";
+
+document.getElementById("vasValue").innerHTML = vas + " " + emoji;
+}
+
+// ANALISIS VAS
+function hitungVAS(){
+
+let vas = +document.getElementById("vas").value;
+
+let kategori = "";
+let warna = "";
+let interpretasi = "";
+let sdki = "";
+let slki = "";
+let siki = [];
+
+// =====================
+// INTERPRETASI VAS
+// =====================
+if(vas == 0){
+kategori = "Tidak Nyeri";
+warna = "normal";
+
+sdki = "Tidak ada masalah nyeri";
+
+slki = `
+• Pasien bebas nyeri
+• Kenyamanan optimal
+`;
+
+siki.push("Observasi kondisi umum");
+siki.push("Pertahankan kenyamanan");
+
+interpretasi = "Pasien tidak merasakan nyeri";
+
+}
+
+else if(vas <= 3){
+kategori = "Nyeri Ringan";
+warna = "normal";
+
+sdki = "Nyeri Akut";
+
+slki = `
+• Intensitas nyeri menurun
+• Pasien tampak nyaman
+`;
+
+siki.push("Kaji karakteristik nyeri");
+siki.push("Ajarkan teknik relaksasi");
+siki.push("Distraksi (musik, TV)");
+siki.push("Posisi nyaman");
+
+interpretasi = "Nyeri ringan, masih dapat ditoleransi";
+
+}
+
+else if(vas <= 6){
+kategori = "Nyeri Sedang";
+warna = "warning";
+
+sdki = "Nyeri Akut";
+
+slki = `
+• Skala nyeri menurun
+• Ekspresi nyeri berkurang
+`;
+
+siki.push("Monitoring skala nyeri berkala");
+siki.push("Berikan teknik non-farmakologi");
+siki.push("Kolaborasi analgesik ringan-sedang");
+siki.push("Ciptakan lingkungan nyaman");
+
+interpretasi = "Nyeri mulai mengganggu aktivitas";
+
+}
+
+else{
+kategori = "Nyeri Berat";
+warna = "danger";
+
+sdki = "Nyeri Akut";
+
+slki = `
+• Nyeri terkontrol
+• Tanda vital stabil
+• Pasien lebih nyaman
+`;
+
+siki.push("Kaji nyeri komprehensif (lokasi, durasi, kualitas)");
+siki.push("Kolaborasi analgesik kuat");
+siki.push("Monitoring efek terapi");
+siki.push("Posisi terapeutik");
+siki.push("Dukungan emosional");
+
+interpretasi = "Nyeri berat, memerlukan penanganan segera";
+
+}
+
+// =====================
+// OUTPUT
+// =====================
+document.getElementById("hasilVAS").innerHTML = `
+
+<div class="${warna}">
+<h3>📊 HASIL SKALA NYERI</h3>
+<b>Skor: ${vas}</b><br>
+Kategori: ${kategori}
+</div>
+
+<h4>📌 Interpretasi</h4>
+${interpretasi}
+
+<h4>🩺 SDKI (Masalah Keperawatan)</h4>
+<b>${sdki}</b>
+
+<h4>🎯 SLKI (Luaran)</h4>
+<pre>${slki}</pre>
+
+<h4>🛠️ SIKI (Intervensi)</h4>
+<ul>${siki.map(x=>"<li>"+x+"</li>").join("")}</ul>
+
 `;
 
 }
