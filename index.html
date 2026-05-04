@@ -557,23 +557,27 @@ ${rekomendasi}
 
 <!-- APACHE -->
 <div class="card">
-<h3>📊 APACHE II Score</h3>
+<h3>📊 APACHE II (Full Clinical)</h3>
 
 <input id="temp" type="number" placeholder="Suhu (°C)">
 <input id="map" type="number" placeholder="MAP (mmHg)">
 <input id="hr" type="number" placeholder="Heart Rate">
 <input id="rr" type="number" placeholder="Respiratory Rate">
-<input id="na" type="number" placeholder="Na (mmol/L)">
-<input id="k" type="number" placeholder="K (mmol/L)">
-<input id="cr" type="number" placeholder="Kreatinin (mg/dL)">
-<input id="hct" type="number" placeholder="Hematokrit (%)">
-<input id="wbc" type="number" placeholder="Leukosit (10³/µL)">
+<input id="fio2" type="number" placeholder="FiO2 (contoh 0.5)">
+<input id="pao2" type="number" placeholder="PaO2 (mmHg)">
+<input id="ph" type="number" placeholder="pH">
+<input id="na" type="number" placeholder="Na">
+<input id="k" type="number" placeholder="K">
+<input id="cr" type="number" placeholder="Kreatinin">
+<input id="hct" type="number" placeholder="Hematokrit">
+<input id="wbc" type="number" placeholder="Leukosit">
 <input id="gcs" type="number" placeholder="GCS (3–15)">
 <input id="age" type="number" placeholder="Usia">
 
 <select id="chronic">
-<option value="0">Tidak ada penyakit kronis berat</option>
-<option value="5">Ada penyakit kronis / imunokompromais</option>
+<option value="0">Tidak ada</option>
+<option value="5">Non-operatif / operasi elektif</option>
+<option value="10">Operasi emergensi / syok</option>
 </select>
 
 <button onclick="hitungAPACHE()">Hitung APACHE II</button>
@@ -582,6 +586,10 @@ ${rekomendasi}
 </div>
 
 <script>
+
+// =====================
+// SCORING FUNCTIONS
+// =====================
 function scoreTemp(t){
 if(t>=41) return 4;
 if(t>=39) return 3;
@@ -619,6 +627,24 @@ if(rr>=25) return 1;
 if(rr>=12) return 0;
 if(rr>=10) return 1;
 if(rr>=6) return 2;
+return 4;
+}
+
+function scoreOxygen(pao2, fio2){
+let ratio = pao2 / fio2;
+if(ratio >= 400) return 0;
+if(ratio >= 300) return 1;
+if(ratio >= 200) return 3;
+return 4;
+}
+
+function scorePH(ph){
+if(ph>=7.7) return 4;
+if(ph>=7.6) return 3;
+if(ph>=7.5) return 1;
+if(ph>=7.33) return 0;
+if(ph>=7.25) return 2;
+if(ph>=7.15) return 3;
 return 4;
 }
 
@@ -677,69 +703,63 @@ if(age>=45) return 2;
 return 0;
 }
 
+// =====================
+// HITUNG APACHE
+// =====================
 function hitungAPACHE(){
 
-let temp = +temp.value;
-let map = +map.value;
-let hr = +hr.value;
-let rr = +rr.value;
-let na = +na.value;
-let k = +k.value;
-let cr = +cr.value;
-let hct = +hct.value;
-let wbc = +wbc.value;
-let gcs = +gcs.value;
-let age = +age.value;
-let chronic = +document.getElementById("chronic").value;
-
 let score =
-scoreTemp(temp) +
-scoreMAP(map) +
-scoreHR(hr) +
-scoreRR(rr) +
-scoreNa(na) +
-scoreK(k) +
-scoreCr(cr) +
-scoreHct(hct) +
-scoreWBC(wbc) +
-(15 - gcs) +
-scoreAge(age) +
-chronic;
+scoreTemp(+temp.value) +
+scoreMAP(+map.value) +
+scoreHR(+hr.value) +
+scoreRR(+rr.value) +
+scoreOxygen(+pao2.value, +fio2.value) +
+scorePH(+ph.value) +
+scoreNa(+na.value) +
+scoreK(+k.value) +
+scoreCr(+cr.value) +
+scoreHct(+hct.value) +
+scoreWBC(+wbc.value) +
+(15 - gcs.value) +
+scoreAge(+age.value) +
++document.getElementById("chronic").value;
 
-let mortalitas = "";
-let warna = "";
-let rekomendasi = "";
+// =====================
+// INTERPRETASI
+// =====================
+let mortalitas, warna, rekomendasi;
 
 if(score < 10){
 mortalitas = "<10%";
 warna = "normal";
-rekomendasi = "Monitoring rutin, optimalkan terapi dasar";
+rekomendasi = "Monitoring rutin";
 }
 else if(score < 20){
 mortalitas = "10–25%";
 warna = "warning";
-rekomendasi = "Observasi ketat, optimalkan hemodinamik & oksigenasi";
+rekomendasi = "Observasi ketat, optimalkan terapi";
 }
 else if(score < 30){
 mortalitas = "40–55%";
 warna = "danger";
-rekomendasi = "⚠️ ICU intensif, evaluasi multi organ, pertimbangkan ventilasi & vasopressor";
+rekomendasi = "⚠️ ICU intensif, ventilasi, vasopressor bila perlu";
 }
 else{
 mortalitas = ">75%";
 warna = "danger";
-rekomendasi = "🚨 Kondisi kritis, resusitasi agresif, diskusi prognosis";
+rekomendasi = "🚨 Kondisi kritis, resusitasi agresif";
 }
 
+// OUTPUT
 document.getElementById("hasilAPACHE").innerHTML = `
 <div class="${warna}">
 <h3>📊 HASIL APACHE II</h3>
 <b>Skor: ${score}</b><br>
-Perkiraan Mortalitas: ${mortalitas}
+Mortalitas: ${mortalitas}
 </div>
 
 <h4>📌 Interpretasi</h4>
-Semakin tinggi skor → semakin berat kondisi pasien
+Semakin tinggi skor → semakin tinggi risiko kematian
 
 <h4>💊 Rekomendasi</h4>
 ${rekomendasi}
@@ -926,49 +946,47 @@ ${rekomendasi}
 }
 </script>
   
-<button class="btn-primary" onclick="hitung()">🔍 Analisis ICU</button>
-<button class="btn-secondary" onclick="cetakPDF()">📄 Export PDF</button>
-
-<div id="hasil" class="result"></div>
-
-<script>
-
 // =====================
-// SCORING (UPGRADE SEDERHANA)
-// =====================
-function scoreTemp(t){
-if(t>=39||t<=30) return 3;
-return 0;
-}
-
-function scoreMAP(m){
-if(m<70) return 2;
-return 0;
-}
-
-// =====================
-// PRINT KHUSUS HASIL
+// CETAK PDF MEDIS
 // =====================
 function cetakPDF(){
-let printContent = document.getElementById("hasil").innerHTML;
 
-let win = window.open("", "", "width=800,height=600");
+let nama = document.getElementById("nama").value || "-";
+let rm = document.getElementById("rm").value || "-";
+
+let isi = document.getElementById("hasil").innerHTML;
+
+let win = window.open("", "", "width=900,height=700");
+
 win.document.write(`
 <html>
 <head>
 <title>Laporan ICU</title>
 <style>
-body{font-family:Arial;padding:20px;}
-h2{text-align:center;}
-.result div{margin:8px;padding:10px;border-radius:8px;}
+body{font-family:Arial;padding:30px;}
+h1{text-align:center;}
+.section{margin-top:20px;}
+.box{padding:10px;margin:5px;border-radius:8px;}
 .normal{background:#d4edda;}
 .warning{background:#fff3cd;}
 .danger{background:#f8d7da;}
 </style>
 </head>
+
 <body>
-<h2>LAPORAN ICU</h2>
-${printContent}
+
+<h1>LAPORAN ICU</h1>
+
+<div class="section">
+<b>Nama:</b> ${nama}<br>
+<b>No RM:</b> ${rm}<br>
+<b>Tanggal:</b> ${new Date().toLocaleString()}
+</div>
+
+<div class="section">
+${isi}
+</div>
+
 </body>
 </html>
 `);
@@ -978,36 +996,38 @@ win.print();
 }
 
 // =====================
-// ANALISIS UTAMA
+// AI OFFLINE (FALLBACK)
+// =====================
+function analisisOffline(data){
+
+let hasil = [];
+
+if(data.apache >= 20) hasil.push("Kondisi kritis, risiko mortalitas tinggi");
+if(data.rass <= -3) hasil.push("Over sedasi, evaluasi sedatif");
+if(data.rass >= 2) hasil.push("Agitasi, evaluasi nyeri/hipoksia/delirium");
+if(data.bps >= 6) hasil.push("Nyeri belum terkontrol");
+if(data.braden <= 12) hasil.push("Risiko dekubitus tinggi");
+if(data.morse >= 45) hasil.push("Risiko jatuh tinggi");
+
+return hasil.join(". ") + ". Monitor ketat dan evaluasi berkala.";
+}
+
+// =====================
+// ANALISIS UTAMA (UPGRADE)
 // =====================
 async function hitung(){
 
 let morse = +m1.value + +m2.value + +m3.value + +m4.value + +m5.value + +m6.value;
 let braden = +b1.value + +b2.value + +b3.value + +b4.value + +b5.value + +b6.value;
 let rassVal = +rass.value;
-let bps = +p1.value + +p2.value + +p3.value;
+let bps = +bps1.value + +bps2.value + +bps3.value;
 
 let apache = scoreTemp(+temp.value) + scoreMAP(+map.value) + (15 - gcs.value);
 
-// =====================
 // INTERPRETASI
-// =====================
 let mortalitas = apache>20?">40%":apache>10?"10–40%":"<10%";
 
-let rassKet =
-rassVal<=-3?"Sedasi dalam":
-rassVal<0?"Sedasi ringan":
-rassVal==0?"Normal":
-"Agitasi";
-
-let bpsKet =
-bps<=4?"Tidak nyeri":
-bps<=6?"Nyeri ringan":
-"Nyeri berat";
-
-// =====================
-// RINGKASAN KLINIS
-// =====================
+// RINGKASAN
 let summary = [];
 
 if(morse>=45) summary.push("Risiko jatuh tinggi");
@@ -1017,31 +1037,15 @@ if(rassVal>=2) summary.push("Agitasi");
 if(bps>=6) summary.push("Nyeri tidak terkontrol");
 if(apache>=20) summary.push("Kondisi kritis");
 
-// =====================
 // OUTPUT
-// =====================
 hasil.innerHTML = `
 <h2>📋 HASIL ICU</h2>
 
-<div class="${morse>=45?"danger":morse>=25?"warning":"normal"}">
-⚠️ Morse: ${morse}
-</div>
-
-<div class="${braden<=12?"danger":braden<=16?"warning":"normal"}">
-🛏️ Braden: ${braden}
-</div>
-
-<div class="${(rassVal>=2||rassVal<=-3)?"danger":"normal"}">
-🧠 RASS: ${rassVal} (${rassKet})
-</div>
-
-<div class="${bps>=6?"danger":"normal"}">
-💢 BPS: ${bps} (${bpsKet})
-</div>
-
-<div class="${apache>=20?"danger":"warning"}">
-📊 APACHE: ${apache}
-</div>
+<div class="${morse>=45?"danger":morse>=25?"warning":"normal"}">⚠️ Morse: ${morse}</div>
+<div class="${braden<=12?"danger":braden<=16?"warning":"normal"}">🛏️ Braden: ${braden}</div>
+<div class="${(rassVal>=2||rassVal<=-3)?"danger":"normal"}">🧠 RASS: ${rassVal}</div>
+<div class="${bps>=6?"danger":"normal"}">💢 BPS: ${bps}</div>
+<div class="${apache>=20?"danger":"warning"}">📊 APACHE: ${apache}</div>
 
 <h3>📊 Interpretasi</h3>
 Mortalitas: <b>${mortalitas}</b>
@@ -1056,7 +1060,7 @@ Mortalitas: <b>${mortalitas}</b>
 `;
 
 // =====================
-// AI ANALISIS (LEBIH STABIL)
+// AI ONLINE + FALLBACK
 // =====================
 try{
 
@@ -1065,27 +1069,38 @@ method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 data: `
-Pasien ICU:
-APACHE ${apache}
-RASS ${rassVal}
-BPS ${bps}
-Morse ${morse}
-Braden ${braden}
-Berikan analisis singkat dan rekomendasi medis`
+Anda adalah dokter ICU.
+Analisis pasien berikut secara klinis singkat:
+
+APACHE: ${apache}
+RASS: ${rassVal}
+BPS: ${bps}
+Morse: ${morse}
+Braden: ${braden}
+
+Berikan:
+1. Kondisi pasien
+2. Masalah utama
+3. Rekomendasi tindakan`
 })
 });
 
-if(!res.ok) throw new Error("API error");
+if(!res.ok) throw new Error();
 
 let json = await res.json();
 
 document.getElementById("chat").innerHTML += 
 `<div class="chat-ai">👨‍⚕️ ${json.result}</div>`;
 
-}catch(e){
+}catch{
+
+// FALLBACK AI LOKAL
+let offline = analisisOffline({
+apache, rass: rassVal, bps, morse, braden
+});
 
 document.getElementById("chat").innerHTML += 
-`<div class="chat-ai">⚠️ AI tidak tersedia (offline mode)</div>`;
+`<div class="chat-ai">⚠️ Offline AI: ${offline}</div>`;
 
 }
 
