@@ -76,13 +76,134 @@ margin-top:10px;
 <!-- MORSE -->
 <div class="card">
 <h3>⚠️ Morse Fall Scale</h3>
-<select id="m1"><option value="0">Riwayat jatuh: Tidak</option><option value="25">Ya</option></select>
-<select id="m2"><option value="0">Diagnosis sekunder: Tidak</option><option value="15">Ya</option></select>
-<select id="m3"><option value="0">Alat bantu: Tidak</option><option value="15">Tongkat</option><option value="30">Furniture</option></select>
-<select id="m4"><option value="0">IV line: Tidak</option><option value="20">Ya</option></select>
-<select id="m5"><option value="0">Gaya jalan normal</option><option value="10">Lemah</option><option value="20">Terganggu</option></select>
-<select id="m6"><option value="0">Mental sadar</option><option value="15">Overestimate</option></select>
+
+<label>Riwayat Jatuh (3 bulan terakhir)</label>
+<select id="m1">
+<option value="0">Tidak</option>
+<option value="25">Ya</option>
+</select>
+
+<label>Diagnosis Sekunder (>1 diagnosis medis)</label>
+<select id="m2">
+<option value="0">Tidak</option>
+<option value="15">Ya</option>
+</select>
+
+<label>Alat Bantu</label>
+<select id="m3">
+<option value="0">Tidak / Bedrest / Dibantu perawat</option>
+<option value="15">Tongkat / Walker</option>
+<option value="30">Berpegangan furniture</option>
+</select>
+
+<label>Terpasang IV / Infus</label>
+<select id="m4">
+<option value="0">Tidak</option>
+<option value="20">Ya</option>
+</select>
+
+<label>Gaya Berjalan</label>
+<select id="m5">
+<option value="0">Normal / Bedrest / Kursi roda</option>
+<option value="10">Lemah</option>
+<option value="20">Terganggu / tidak stabil</option>
+</select>
+
+<label>Status Mental</label>
+<select id="m6">
+<option value="0">Sadar akan kemampuan</option>
+<option value="15">Overestimate / lupa keterbatasan</option>
+</select>
+
+<button onclick="hitungMorse()">Hitung Morse</button>
+
+<div id="hasilMorse" class="result"></div>
 </div>
+
+<script>
+function hitungMorse(){
+
+let m1 = +document.getElementById("m1").value;
+let m2 = +document.getElementById("m2").value;
+let m3 = +document.getElementById("m3").value;
+let m4 = +document.getElementById("m4").value;
+let m5 = +document.getElementById("m5").value;
+let m6 = +document.getElementById("m6").value;
+
+let total = m1 + m2 + m3 + m4 + m5 + m6;
+
+let kategori = "";
+let warna = "";
+let interpretasi = "";
+let rekomendasi = "";
+
+// INTERPRETASI STANDAR
+if(total <= 24){
+kategori = "Risiko Rendah";
+warna = "normal";
+interpretasi = "Risiko jatuh minimal";
+rekomendasi = `
+• Perawatan standar
+• Edukasi pasien & keluarga
+• Pastikan lingkungan aman
+`;
+}
+
+else if(total <= 44){
+kategori = "Risiko Sedang";
+warna = "warning";
+interpretasi = "Risiko jatuh meningkat";
+rekomendasi = `
+• Pasang label risiko jatuh
+• Edukasi pasien
+• Pastikan bel pasien dalam jangkauan
+• Supervisi saat mobilisasi
+`;
+}
+
+else{
+kategori = "Risiko Tinggi";
+warna = "danger";
+interpretasi = "Risiko jatuh tinggi ⚠️";
+rekomendasi = `
+• 🚨 Pengawasan ketat
+• Gunakan bed rail
+• Tempatkan pasien dekat nurse station
+• Bantuan saat mobilisasi
+• Gunakan alas anti-slip
+`;
+}
+
+// ANALISIS FAKTOR RISIKO
+let catatan = [];
+
+if(m1 > 0) catatan.push("Riwayat jatuh");
+if(m2 > 0) catatan.push("Diagnosis multipel");
+if(m3 >= 15) catatan.push("Ketergantungan alat bantu");
+if(m4 > 0) catatan.push("Terpasang infus");
+if(m5 >= 10) catatan.push("Gangguan berjalan");
+if(m6 > 0) catatan.push("Gangguan persepsi diri");
+
+// OUTPUT
+document.getElementById("hasilMorse").innerHTML = `
+<div class="${warna}">
+<h3>📊 HASIL MORSE</h3>
+<b>Skor: ${total}</b><br>
+Kategori: ${kategori}
+</div>
+
+<h4>📌 Interpretasi</h4>
+${interpretasi}
+
+<h4>💊 Rekomendasi</h4>
+<pre>${rekomendasi}</pre>
+
+<h4>🔍 Faktor Risiko</h4>
+<ul>${catatan.map(x=>"<li>"+x+"</li>").join("")}</ul>
+`;
+
+}
+</script>
 
 <!-- BRADEN -->
 <div class="card">
@@ -436,63 +557,497 @@ ${rekomendasi}
 
 <!-- APACHE -->
 <div class="card">
-<h3>📊 APACHE II (REAL INPUT)</h3>
-<input id="temp" type="number" placeholder="Suhu">
-<input id="map" type="number" placeholder="MAP">
-<input id="hr" type="number" placeholder="HR">
-<input id="rr" type="number" placeholder="RR">
-<input id="pao2" type="number" placeholder="PaO2/FiO2">
-<input id="ph" type="number" placeholder="pH">
-<input id="na" type="number" placeholder="Na">
-<input id="k" type="number" placeholder="K">
-<input id="cr" type="number" placeholder="Kreatinin">
-<input id="hct" type="number" placeholder="Hematokrit">
-<input id="wbc" type="number" placeholder="Leukosit">
-<input id="gcs" type="number" placeholder="GCS">
+<h3>📊 APACHE II Score</h3>
+
+<input id="temp" type="number" placeholder="Suhu (°C)">
+<input id="map" type="number" placeholder="MAP (mmHg)">
+<input id="hr" type="number" placeholder="Heart Rate">
+<input id="rr" type="number" placeholder="Respiratory Rate">
+<input id="na" type="number" placeholder="Na (mmol/L)">
+<input id="k" type="number" placeholder="K (mmol/L)">
+<input id="cr" type="number" placeholder="Kreatinin (mg/dL)">
+<input id="hct" type="number" placeholder="Hematokrit (%)">
+<input id="wbc" type="number" placeholder="Leukosit (10³/µL)">
+<input id="gcs" type="number" placeholder="GCS (3–15)">
 <input id="age" type="number" placeholder="Usia">
-<select id="chronic"><option value="0">Chronic Tidak</option><option value="5">Ya</option></select>
-</div>
 
-</div>
+<select id="chronic">
+<option value="0">Tidak ada penyakit kronis berat</option>
+<option value="5">Ada penyakit kronis / imunokompromais</option>
+</select>
 
-<button class="btn-primary" onclick="hitung()">🔍 Analisis ICU</button>
-<button class="btn-secondary" onclick="window.print()">📄 Export PDF</button>
+<button onclick="hitungAPACHE()">Hitung APACHE II</button>
 
-<div id="hasil" class="result"></div>
-
+<div id="hasilAPACHE" class="result"></div>
 </div>
 
 <script>
+function scoreTemp(t){
+if(t>=41) return 4;
+if(t>=39) return 3;
+if(t>=38.5) return 1;
+if(t>=36) return 0;
+if(t>=34) return 1;
+if(t>=32) return 2;
+if(t>=30) return 3;
+return 4;
+}
 
-// scoring sederhana (bisa upgrade nanti)
-function scoreTemp(t){ if(t>=39||t<=30)return 3; return 0;}
-function scoreMAP(m){ if(m<70)return 2; return 0;}
+function scoreMAP(m){
+if(m>=160) return 4;
+if(m>=130) return 3;
+if(m>=110) return 2;
+if(m>=70) return 0;
+if(m>=50) return 2;
+return 4;
+}
 
+function scoreHR(hr){
+if(hr>=180) return 4;
+if(hr>=140) return 3;
+if(hr>=110) return 2;
+if(hr>=70) return 0;
+if(hr>=55) return 2;
+if(hr>=40) return 3;
+return 4;
+}
+
+function scoreRR(rr){
+if(rr>=50) return 4;
+if(rr>=35) return 3;
+if(rr>=25) return 1;
+if(rr>=12) return 0;
+if(rr>=10) return 1;
+if(rr>=6) return 2;
+return 4;
+}
+
+function scoreNa(na){
+if(na>=180) return 4;
+if(na>=160) return 3;
+if(na>=155) return 2;
+if(na>=150) return 1;
+if(na>=130) return 0;
+if(na>=120) return 2;
+if(na>=111) return 3;
+return 4;
+}
+
+function scoreK(k){
+if(k>=7) return 4;
+if(k>=6) return 3;
+if(k>=5.5) return 1;
+if(k>=3.5) return 0;
+if(k>=3) return 1;
+if(k>=2.5) return 2;
+return 4;
+}
+
+function scoreCr(cr){
+if(cr>=3.5) return 4;
+if(cr>=2) return 3;
+if(cr>=1.5) return 2;
+if(cr>=0.6) return 0;
+return 2;
+}
+
+function scoreHct(h){
+if(h>=60) return 4;
+if(h>=50) return 2;
+if(h>=46) return 1;
+if(h>=30) return 0;
+if(h>=20) return 2;
+return 4;
+}
+
+function scoreWBC(w){
+if(w>=40) return 4;
+if(w>=20) return 2;
+if(w>=15) return 1;
+if(w>=3) return 0;
+if(w>=1) return 2;
+return 4;
+}
+
+function scoreAge(age){
+if(age>=75) return 6;
+if(age>=65) return 5;
+if(age>=55) return 3;
+if(age>=45) return 2;
+return 0;
+}
+
+function hitungAPACHE(){
+
+let temp = +temp.value;
+let map = +map.value;
+let hr = +hr.value;
+let rr = +rr.value;
+let na = +na.value;
+let k = +k.value;
+let cr = +cr.value;
+let hct = +hct.value;
+let wbc = +wbc.value;
+let gcs = +gcs.value;
+let age = +age.value;
+let chronic = +document.getElementById("chronic").value;
+
+let score =
+scoreTemp(temp) +
+scoreMAP(map) +
+scoreHR(hr) +
+scoreRR(rr) +
+scoreNa(na) +
+scoreK(k) +
+scoreCr(cr) +
+scoreHct(hct) +
+scoreWBC(wbc) +
+(15 - gcs) +
+scoreAge(age) +
+chronic;
+
+let mortalitas = "";
+let warna = "";
+let rekomendasi = "";
+
+if(score < 10){
+mortalitas = "<10%";
+warna = "normal";
+rekomendasi = "Monitoring rutin, optimalkan terapi dasar";
+}
+else if(score < 20){
+mortalitas = "10–25%";
+warna = "warning";
+rekomendasi = "Observasi ketat, optimalkan hemodinamik & oksigenasi";
+}
+else if(score < 30){
+mortalitas = "40–55%";
+warna = "danger";
+rekomendasi = "⚠️ ICU intensif, evaluasi multi organ, pertimbangkan ventilasi & vasopressor";
+}
+else{
+mortalitas = ">75%";
+warna = "danger";
+rekomendasi = "🚨 Kondisi kritis, resusitasi agresif, diskusi prognosis";
+}
+
+document.getElementById("hasilAPACHE").innerHTML = `
+<div class="${warna}">
+<h3>📊 HASIL APACHE II</h3>
+<b>Skor: ${score}</b><br>
+Perkiraan Mortalitas: ${mortalitas}
+</div>
+
+<h4>📌 Interpretasi</h4>
+Semakin tinggi skor → semakin berat kondisi pasien
+
+<h4>💊 Rekomendasi</h4>
+${rekomendasi}
+`;
+
+}
+</script>
+
+  <!-- ESTIMASI BB -->
+<div class="card">
+<h3>⚖️ Estimasi Berat Badan (MUAC + Panjang Kaki)</h3>
+
+<label>Lingkar Lengan Atas / MUAC (cm)</label>
+<input id="muac" type="number" placeholder="Contoh: 25">
+
+<label>Panjang Kaki / Knee Height (cm)</label>
+<input id="knee" type="number" placeholder="Contoh: 50">
+
+<label>Jenis Kelamin</label>
+<select id="gender">
+<option value="pria">Pria</option>
+<option value="wanita">Wanita</option>
+</select>
+
+<button onclick="hitungBB()">Hitung Estimasi BB</button>
+
+<div id="hasilBB" class="result"></div>
+</div>
+
+<script>
+function hitungBB(){
+
+let muac = parseFloat(document.getElementById("muac").value);
+let knee = parseFloat(document.getElementById("knee").value);
+let gender = document.getElementById("gender").value;
+
+if(!muac || !knee){
+document.getElementById("hasilBB").innerHTML = "⚠️ Isi semua data";
+return;
+}
+
+// RUMUS ESTIMASI (kombinasi MUAC + knee height)
+// pendekatan praktis klinis ICU
+let bb = (muac * 3.5) + (knee * 1.2) - 50;
+
+// koreksi jenis kelamin
+if(gender === "wanita"){
+bb = bb * 0.95;
+}
+
+// pembulatan
+bb = Math.round(bb);
+
+// INTERPRETASI
+let kategori = "";
+let warna = "";
+let rekomendasi = "";
+
+// klasifikasi sederhana berbasis MUAC
+if(muac < 23){
+kategori = "Kemungkinan underweight / malnutrisi";
+warna = "warning";
+rekomendasi = "Evaluasi status nutrisi, pertimbangkan dukungan nutrisi enteral/parenteral";
+}
+else if(muac <= 32){
+kategori = "Berat badan normal";
+warna = "normal";
+rekomendasi = "Gunakan hasil estimasi untuk dosis obat & cairan";
+}
+else{
+kategori = "Kemungkinan overweight / obesitas";
+warna = "warning";
+rekomendasi = "Hati-hati perhitungan dosis (gunakan adjusted body weight bila perlu)";
+}
+
+// OUTPUT
+document.getElementById("hasilBB").innerHTML = `
+<div class="${warna}">
+<h3>📊 HASIL ESTIMASI BB</h3>
+<b>Berat badan: ${bb} kg</b><br>
+Kategori: ${kategori}
+</div>
+
+<h4>📌 Interpretasi</h4>
+Estimasi berdasarkan MUAC & panjang kaki (digunakan saat pasien tidak dapat ditimbang)
+
+<h4>💊 Rekomendasi Klinis</h4>
+${rekomendasi}
+
+<h4>📏 Data Input</h4>
+MUAC: ${muac} cm<br>
+Knee Height: ${knee} cm
+`;
+}
+</script>
+
+  <!-- KEBUTUHAN KALORI -->
+<div class="card">
+<h3>🍽️ Kebutuhan Kalori Harian</h3>
+
+<label>Berat Badan (kg)</label>
+<input id="bb" type="number" placeholder="Contoh: 60">
+
+<label>Kondisi Klinis</label>
+<select id="kondisi">
+<option value="25">Normal (rawat inap biasa)</option>
+<option value="30">Stres ringan (post op, infeksi ringan)</option>
+<option value="35">Stres sedang (sepsis, trauma)</option>
+<option value="40">Stres berat (ICU, ventilator, luka bakar)</option>
+</select>
+
+<label>Status Nutrisi</label>
+<select id="status">
+<option value="1">Normal</option>
+<option value="0.9">Overweight / obesitas</option>
+<option value="1.1">Malnutrisi</option>
+</select>
+
+<button onclick="hitungKalori()">Hitung Kebutuhan</button>
+
+<div id="hasilKalori" class="result"></div>
+</div>
+
+<script>
+function hitungKalori(){
+
+let bb = parseFloat(document.getElementById("bb").value);
+let faktor = parseFloat(document.getElementById("kondisi").value);
+let status = parseFloat(document.getElementById("status").value);
+
+if(!bb){
+document.getElementById("hasilKalori").innerHTML = "⚠️ Masukkan berat badan";
+return;
+}
+
+// HITUNG TOTAL KALORI
+let kalori = bb * faktor * status;
+kalori = Math.round(kalori);
+
+// PROTEIN (standar ICU)
+let protein = Math.round(bb * 1.2);
+
+// INTERPRETASI
+let kategori = "";
+let warna = "";
+let rekomendasi = "";
+
+if(kalori < 1500){
+kategori = "Kebutuhan rendah";
+warna = "warning";
+rekomendasi = "Evaluasi status nutrisi, pertimbangkan peningkatan intake";
+}
+else if(kalori <= 2500){
+kategori = "Kebutuhan sedang";
+warna = "normal";
+rekomendasi = "Pertahankan nutrisi sesuai kebutuhan";
+}
+else{
+kategori = "Kebutuhan tinggi";
+warna = "danger";
+rekomendasi = "⚠️ Monitor ketat, pertimbangkan nutrisi enteral/parenteral";
+}
+
+// OUTPUT
+document.getElementById("hasilKalori").innerHTML = `
+<div class="${warna}">
+<h3>📊 HASIL KEBUTUHAN KALORI</h3>
+<b>Total: ${kalori} kkal/hari</b><br>
+Protein: ${protein} gram/hari<br>
+Kategori: ${kategori}
+</div>
+
+<h4>📌 Interpretasi</h4>
+Kebutuhan dihitung berdasarkan berat badan dan tingkat stres metabolik
+
+<h4>💊 Rekomendasi</h4>
+${rekomendasi}
+
+<h4>🥗 Catatan Klinis</h4>
+• Karbohidrat: 50–60%  
+• Lemak: 20–30%  
+• Protein: 1.2–2 g/kg (ICU bisa lebih tinggi)
+`;
+}
+</script>
+  
+<button class="btn-primary" onclick="hitung()">🔍 Analisis ICU</button>
+<button class="btn-secondary" onclick="cetakPDF()">📄 Export PDF</button>
+
+<div id="hasil" class="result"></div>
+
+<script>
+
+// =====================
+// SCORING (UPGRADE SEDERHANA)
+// =====================
+function scoreTemp(t){
+if(t>=39||t<=30) return 3;
+return 0;
+}
+
+function scoreMAP(m){
+if(m<70) return 2;
+return 0;
+}
+
+// =====================
+// PRINT KHUSUS HASIL
+// =====================
+function cetakPDF(){
+let printContent = document.getElementById("hasil").innerHTML;
+
+let win = window.open("", "", "width=800,height=600");
+win.document.write(`
+<html>
+<head>
+<title>Laporan ICU</title>
+<style>
+body{font-family:Arial;padding:20px;}
+h2{text-align:center;}
+.result div{margin:8px;padding:10px;border-radius:8px;}
+.normal{background:#d4edda;}
+.warning{background:#fff3cd;}
+.danger{background:#f8d7da;}
+</style>
+</head>
+<body>
+<h2>LAPORAN ICU</h2>
+${printContent}
+</body>
+</html>
+`);
+
+win.document.close();
+win.print();
+}
+
+// =====================
+// ANALISIS UTAMA
+// =====================
 async function hitung(){
 
-let morse = +m1.value+ +m2.value+ +m3.value+ +m4.value+ +m5.value+ +m6.value;
-let braden = +b1.value+ +b2.value+ +b3.value+ +b4.value+ +b5.value+ +b6.value;
+let morse = +m1.value + +m2.value + +m3.value + +m4.value + +m5.value + +m6.value;
+let braden = +b1.value + +b2.value + +b3.value + +b4.value + +b5.value + +b6.value;
 let rassVal = +rass.value;
-let bps = +p1.value+ +p2.value+ +p3.value;
+let bps = +p1.value + +p2.value + +p3.value;
 
-let apache = scoreTemp(+temp.value)+scoreMAP(+map.value)+(15-gcs.value);
+let apache = scoreTemp(+temp.value) + scoreMAP(+map.value) + (15 - gcs.value);
 
-let mortalitas = apache>20?">40%":apache>10?"10-40%":"<10%";
+// =====================
+// INTERPRETASI
+// =====================
+let mortalitas = apache>20?">40%":apache>10?"10–40%":"<10%";
 
-let rassKet = rassVal<=-3?"Sedasi dalam":rassVal<0?"Sedasi ringan":rassVal==0?"Normal":"Agitasi";
-let bpsKet = bps<=4?"Tidak nyeri":bps<=6?"Nyeri ringan":"Nyeri berat";
+let rassKet =
+rassVal<=-3?"Sedasi dalam":
+rassVal<0?"Sedasi ringan":
+rassVal==0?"Normal":
+"Agitasi";
 
+let bpsKet =
+bps<=4?"Tidak nyeri":
+bps<=6?"Nyeri ringan":
+"Nyeri berat";
+
+// =====================
+// RINGKASAN KLINIS
+// =====================
+let summary = [];
+
+if(morse>=45) summary.push("Risiko jatuh tinggi");
+if(braden<=12) summary.push("Risiko dekubitus tinggi");
+if(rassVal<=-3) summary.push("Over sedasi");
+if(rassVal>=2) summary.push("Agitasi");
+if(bps>=6) summary.push("Nyeri tidak terkontrol");
+if(apache>=20) summary.push("Kondisi kritis");
+
+// =====================
+// OUTPUT
+// =====================
 hasil.innerHTML = `
 <h2>📋 HASIL ICU</h2>
 
-<div class="${morse>=45?"danger":morse>=25?"warning":"normal"}">Morse: ${morse}</div>
-<div class="${braden<=12?"danger":braden<=16?"warning":"normal"}">Braden: ${braden}</div>
-<div class="${(rassVal>=2||rassVal<=-3)?"danger":"normal"}">RASS: ${rassVal} (${rassKet})</div>
-<div class="${bps>=6?"danger":"normal"}">BPS: ${bps} (${bpsKet})</div>
-<div class="${apache>=20?"danger":"warning"}">APACHE: ${apache}</div>
+<div class="${morse>=45?"danger":morse>=25?"warning":"normal"}">
+⚠️ Morse: ${morse}
+</div>
+
+<div class="${braden<=12?"danger":braden<=16?"warning":"normal"}">
+🛏️ Braden: ${braden}
+</div>
+
+<div class="${(rassVal>=2||rassVal<=-3)?"danger":"normal"}">
+🧠 RASS: ${rassVal} (${rassKet})
+</div>
+
+<div class="${bps>=6?"danger":"normal"}">
+💢 BPS: ${bps} (${bpsKet})
+</div>
+
+<div class="${apache>=20?"danger":"warning"}">
+📊 APACHE: ${apache}
+</div>
 
 <h3>📊 Interpretasi</h3>
-Mortalitas: ${mortalitas}
+Mortalitas: <b>${mortalitas}</b>
+
+<h3>🚨 Ringkasan Klinis</h3>
+<ul>${summary.map(s=>`<li>${s}</li>`).join("")}</ul>
 
 <h3>🤖 AI Dokter ICU</h3>
 <div id="chat" class="chat-box">
@@ -500,18 +1055,38 @@ Mortalitas: ${mortalitas}
 </div>
 `;
 
-// AI
+// =====================
+// AI ANALISIS (LEBIH STABIL)
+// =====================
 try{
+
 let res = await fetch("https://icu-ai.onrender.com/ai",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({data:`APACHE ${apache}, RASS ${rassVal}, BPS ${bps}`})
+body:JSON.stringify({
+data: `
+Pasien ICU:
+APACHE ${apache}
+RASS ${rassVal}
+BPS ${bps}
+Morse ${morse}
+Braden ${braden}
+Berikan analisis singkat dan rekomendasi medis`
+})
 });
+
+if(!res.ok) throw new Error("API error");
+
 let json = await res.json();
 
-document.getElementById("chat").innerHTML += `<div class="chat-ai">👨‍⚕️ ${json.result}</div>`;
-}catch{
-document.getElementById("chat").innerHTML += `<div class="chat-ai">AI tidak tersedia</div>`;
+document.getElementById("chat").innerHTML += 
+`<div class="chat-ai">👨‍⚕️ ${json.result}</div>`;
+
+}catch(e){
+
+document.getElementById("chat").innerHTML += 
+`<div class="chat-ai">⚠️ AI tidak tersedia (offline mode)</div>`;
+
 }
 
 }
