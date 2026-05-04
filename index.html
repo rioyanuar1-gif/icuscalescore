@@ -5,9 +5,26 @@
 <title>ICU Smart CDSS</title>
 
 <style>
-body {font-family:Arial;background:#eef2f7;padding:20px;}
-.container {max-width:1300px;margin:auto;}
-h1{text-align:center;color:#003049;}
+body {
+    font-family: Arial;
+    background: url('https://images.unsplash.com/photo-1586773860418-d37222d8fce3') no-repeat center center fixed;
+    background-size: cover;
+    padding: 20px;
+    position: relative; /* WAJIB */
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(255,255,255,0.85); /* warna overlay */
+    
+    z-index: -1;
+}
 
 .grid{
 display:grid;
