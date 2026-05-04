@@ -86,56 +86,353 @@ margin-top:10px;
 
 <!-- BRADEN -->
 <div class="card">
-<h3>🛏️ Braden Scale</h3>
-<select id="b1"><option value="1">Sensorik buruk</option><option value="4">Normal</option></select>
-<select id="b2"><option value="1">Lembab</option><option value="4">Normal</option></select>
-<select id="b3"><option value="1">Bed rest</option><option value="4">Aktif</option></select>
-<select id="b4"><option value="1">Imobilisasi</option><option value="4">Bebas</option></select>
-<select id="b5"><option value="1">Nutrisi buruk</option><option value="4">Baik</option></select>
-<select id="b6"><option value="1">Gesekan tinggi</option><option value="3">Normal</option></select>
+<h3>🛏️ Skala Braden</h3>
+
+<label>Persepsi Sensorik</label>
+<select id="b1">
+<option value="1">1 = Tidak respons</option>
+<option value="2">2 = Sangat terbatas</option>
+<option value="3">3 = Sedikit terbatas</option>
+<option value="4">4 = Normal</option>
+</select>
+
+<label>Kelembaban</label>
+<select id="b2">
+<option value="1">1 = Selalu lembab</option>
+<option value="2">2 = Sering lembab</option>
+<option value="3">3 = Kadang lembab</option>
+<option value="4">4 = Jarang lembab</option>
+</select>
+
+<label>Aktivitas</label>
+<select id="b3">
+<option value="1">1 = Bedrest</option>
+<option value="2">2 = Kursi</option>
+<option value="3">3 = Jalan terbatas</option>
+<option value="4">4 = Sering berjalan</option>
+</select>
+
+<label>Mobilitas</label>
+<select id="b4">
+<option value="1">1 = Imobilisasi</option>
+<option value="2">2 = Sangat terbatas</option>
+<option value="3">3 = Sedikit terbatas</option>
+<option value="4">4 = Bebas</option>
+</select>
+
+<label>Nutrisi</label>
+<select id="b5">
+<option value="1">1 = Sangat buruk</option>
+<option value="2">2 = Kurang</option>
+<option value="3">3 = Cukup</option>
+<option value="4">4 = Baik</option>
+</select>
+
+<label>Gesekan & Geser</label>
+<select id="b6">
+<option value="1">1 = Masalah besar</option>
+<option value="2">2 = Masalah potensial</option>
+<option value="3">3 = Tidak ada masalah</option>
+</select>
+
+<button onclick="hitungBraden()">Hitung Braden</button>
+
+<div id="hasilBraden" class="result"></div>
 </div>
+
+<script>
+function hitungBraden(){
+
+let b1 = +document.getElementById("b1").value;
+let b2 = +document.getElementById("b2").value;
+let b3 = +document.getElementById("b3").value;
+let b4 = +document.getElementById("b4").value;
+let b5 = +document.getElementById("b5").value;
+let b6 = +document.getElementById("b6").value;
+
+let total = b1 + b2 + b3 + b4 + b5 + b6;
+
+let kategori, warna, rekomendasi;
+
+// INTERPRETASI
+if(total <= 9){
+kategori = "Sangat Tinggi";
+warna = "danger";
+rekomendasi = "Reposisi ≤2 jam, kasur anti-dekubitus, monitoring ketat, nutrisi tinggi protein";
+}
+else if(total <= 12){
+kategori = "Tinggi";
+warna = "danger";
+rekomendasi = "Reposisi tiap 2 jam, matras khusus, observasi kulit harian";
+}
+else if(total <= 16){
+kategori = "Sedang";
+warna = "warning";
+rekomendasi = "Reposisi 2–3 jam, edukasi mobilisasi, pantau area tekan";
+}
+else{
+kategori = "Rendah";
+warna = "normal";
+rekomendasi = "Perawatan standar dan mobilisasi rutin";
+}
+
+// ANALISIS RISIKO DETAIL
+let catatan = [];
+
+if(b1 <= 2) catatan.push("Gangguan sensorik");
+if(b2 <= 2) catatan.push("Kulit lembab");
+if(b3 <= 2) catatan.push("Aktivitas rendah");
+if(b4 <= 2) catatan.push("Mobilitas terbatas");
+if(b5 <= 2) catatan.push("Nutrisi buruk");
+if(b6 <= 2) catatan.push("Gesekan tinggi");
+
+document.getElementById("hasilBraden").innerHTML = `
+<div class="${warna}">
+<h3>📊 HASIL BRADEN</h3>
+<b>Skor: ${total}</b><br>
+Kategori: ${kategori}
+</div>
+
+<h4>📌 Interpretasi</h4>
+Risiko dekubitus: <b>${kategori}</b>
+
+<h4>💊 Rekomendasi</h4>
+${rekomendasi}
+
+<h4>🔍 Faktor Risiko</h4>
+<ul>${catatan.map(x=>"<li>"+x+"</li>").join("")}</ul>
+`;
+
+}
+</script>
 
 <!-- RASS -->
 <div class="card">
-<h3>🧠 RASS</h3>
+<h3>🧠 RASS (Richmond Agitation-Sedation Scale)</h3>
+
+<label>Pilih Skor RASS</label>
 <select id="rass">
-<option value="-5">-5 Tidak respons</option>
-<option value="-4">-4 Sedasi dalam</option>
-<option value="-3">-3 Sedasi sedang</option>
-<option value="-2">-2 Sedasi ringan</option>
-<option value="-1">-1 Mengantuk</option>
-<option value="0">0 Sadar</option>
-<option value="1">+1 Gelisah</option>
-<option value="2">+2 Agitasi</option>
-<option value="3">+3 Agitasi berat</option>
-<option value="4">+4 Sangat agitasi</option>
+<option value="-5">-5 = Tidak respons (tidak ada respon terhadap suara/nyeri)</option>
+<option value="-4">-4 = Sedasi dalam (respon minimal terhadap nyeri)</option>
+<option value="-3">-3 = Sedasi sedang (respon terhadap suara tanpa kontak mata)</option>
+<option value="-2">-2 = Sedasi ringan (kontak mata singkat)</option>
+<option value="-1">-1 = Mengantuk (kontak mata >10 detik)</option>
+<option value="0">0 = Sadar & tenang</option>
+<option value="1">+1 = Gelisah</option>
+<option value="2">+2 = Agitasi</option>
+<option value="3">+3 = Agitasi berat</option>
+<option value="4">+4 = Sangat agitasi / agresif</option>
 </select>
+
+<button onclick="hitungRASS()">Hitung RASS</button>
+
+<div id="hasilRASS" class="result"></div>
 </div>
+
+<script>
+function hitungRASS(){
+
+let nilai = parseInt(document.getElementById("rass").value);
+
+let kategori = "";
+let warna = "";
+let interpretasi = "";
+let rekomendasi = "";
+
+// INTERPRETASI KLINIS
+if(nilai <= -4){
+kategori = "Sedasi sangat dalam";
+warna = "danger";
+interpretasi = "Pasien tidak respons / hampir tidak respons";
+rekomendasi = "⚠️ Evaluasi overdosis sedasi, pertimbangkan pengurangan sedatif, monitor airway & hemodinamik ketat";
+}
+
+else if(nilai == -3){
+kategori = "Sedasi sedang";
+warna = "warning";
+interpretasi = "Respon minimal terhadap suara";
+rekomendasi = "Evaluasi target sedasi, pertimbangkan titrasi sedatif";
+}
+
+else if(nilai == -2){
+kategori = "Sedasi ringan";
+warna = "normal";
+interpretasi = "Kontak mata singkat, masih sesuai target ICU";
+rekomendasi = "Pertahankan terapi, monitor berkala";
+}
+
+else if(nilai == -1){
+kategori = "Mengantuk";
+warna = "normal";
+interpretasi = "Pasien mengantuk namun respons baik";
+rekomendasi = "Masih dalam target, observasi";
+}
+
+else if(nilai == 0){
+kategori = "Sadar & tenang";
+warna = "normal";
+interpretasi = "Kondisi ideal pasien ICU";
+rekomendasi = "Pertahankan kondisi, lanjutkan monitoring";
+}
+
+else if(nilai == 1){
+kategori = "Gelisah";
+warna = "warning";
+interpretasi = "Pasien tampak cemas / tidak tenang";
+rekomendasi = "Evaluasi nyeri, hipoksia, delirium";
+}
+
+else if(nilai == 2){
+kategori = "Agitasi";
+warna = "danger";
+interpretasi = "Gerakan sering, melawan ventilator";
+rekomendasi = "⚠️ Evaluasi nyeri, sedasi, hipoksia; pertimbangkan sedatif";
+}
+
+else if(nilai >= 3){
+kategori = "Agitasi berat";
+warna = "danger";
+interpretasi = "Perilaku berbahaya / agresif";
+rekomendasi = "⚠️ Sedasi segera, amankan pasien, evaluasi penyebab (hipoksia, delirium)";
+}
+
+// TARGET ICU
+let target = (nilai >= -2 && nilai <= 0) 
+? "✅ Dalam target sedasi ICU (-2 sampai 0)" 
+: "⚠️ Di luar target sedasi ICU";
+
+// OUTPUT
+document.getElementById("hasilRASS").innerHTML = `
+<div class="${warna}">
+<h3>📊 HASIL RASS</h3>
+<b>Skor: ${nilai}</b><br>
+Kategori: ${kategori}
+</div>
+
+<h4>📌 Interpretasi</h4>
+${interpretasi}
+
+<h4>🎯 Target ICU</h4>
+${target}
+
+<h4>💊 Rekomendasi</h4>
+${rekomendasi}
+`;
+
+}
+</script>
 
 <!-- BPS -->
 <div class="card">
-<h3>💢 BPS</h3>
-<select id="p1">
-<option value="1">Relaks</option>
-<option value="2">Tegang</option>
-<option value="3">Grimace</option>
-<option value="4">Meringis</option>
+<h3>💢 BPS (Behavioral Pain Scale)</h3>
+
+<label>Ekspresi Wajah</label>
+<select id="bps1">
+<option value="1">1 = Relaks</option>
+<option value="2">2 = Tegang</option>
+<option value="3">3 = Grimace (mengerut)</option>
+<option value="4">4 = Meringis jelas</option>
 </select>
 
-<select id="p2">
-<option value="1">Tidak ada</option>
-<option value="2">Fleksi ringan</option>
-<option value="3">Fleksi kuat</option>
-<option value="4">Tarikan kuat</option>
+<label>Gerakan Ekstremitas Atas</label>
+<select id="bps2">
+<option value="1">1 = Tidak ada gerakan</option>
+<option value="2">2 = Fleksi ringan</option>
+<option value="3">3 = Fleksi kuat / menarik</option>
+<option value="4">4 = Tarikan kuat / melawan</option>
 </select>
 
-<select id="p3">
-<option value="1">Toleransi ventilator</option>
-<option value="2">Batuk ringan</option>
-<option value="3">Melawan ventilator</option>
-<option value="4">Tidak sinkron</option>
+<label>Adaptasi Ventilator / Respons terhadap Ventilator</label>
+<select id="bps3">
+<option value="1">1 = Toleransi ventilator</option>
+<option value="2">2 = Batuk ringan</option>
+<option value="3">3 = Melawan ventilator</option>
+<option value="4">4 = Tidak sinkron ventilator</option>
 </select>
+
+<button onclick="hitungBPS()">Hitung BPS</button>
+
+<div id="hasilBPS" class="result"></div>
 </div>
+
+<script>
+function hitungBPS(){
+
+let p1 = +document.getElementById("bps1").value;
+let p2 = +document.getElementById("bps2").value;
+let p3 = +document.getElementById("bps3").value;
+
+let total = p1 + p2 + p3;
+
+let kategori = "";
+let warna = "";
+let interpretasi = "";
+let rekomendasi = "";
+
+// INTERPRETASI KLINIS
+if(total <= 4){
+kategori = "Tidak nyeri";
+warna = "normal";
+interpretasi = "Pasien tampak nyaman, tidak ada tanda nyeri bermakna";
+rekomendasi = "Lanjutkan monitoring rutin, pertahankan terapi saat ini";
+}
+
+else if(total <= 6){
+kategori = "Nyeri ringan";
+warna = "warning";
+interpretasi = "Terdapat tanda nyeri ringan";
+rekomendasi = "Evaluasi kebutuhan analgesik, optimalkan kenyamanan pasien";
+}
+
+else if(total <= 8){
+kategori = "Nyeri sedang";
+warna = "danger";
+interpretasi = "Nyeri signifikan, dapat mempengaruhi ventilasi dan hemodinamik";
+rekomendasi = "⚠️ Berikan analgesik (opioid/non-opioid sesuai indikasi), evaluasi penyebab nyeri";
+}
+
+else{
+kategori = "Nyeri berat";
+warna = "danger";
+interpretasi = "Nyeri berat, risiko instabilitas pasien";
+rekomendasi = "🚨 Analgesia segera, evaluasi penyebab (prosedur, ventilator, luka), pertimbangkan sedasi tambahan";
+}
+
+// TARGET ICU
+let target = (total <= 5)
+? "✅ Nyeri terkontrol (target ICU)"
+: "⚠️ Nyeri belum terkontrol";
+
+// ANALISIS DETAIL
+let catatan = [];
+
+if(p1 >= 3) catatan.push("Ekspresi wajah menunjukkan nyeri");
+if(p2 >= 3) catatan.push("Gerakan ekstremitas menunjukkan respon nyeri");
+if(p3 >= 3) catatan.push("Tidak sinkron dengan ventilator");
+
+// OUTPUT
+document.getElementById("hasilBPS").innerHTML = `
+<div class="${warna}">
+<h3>📊 HASIL BPS</h3>
+<b>Skor: ${total}</b><br>
+Kategori: ${kategori}
+</div>
+
+<h4>📌 Interpretasi</h4>
+${interpretasi}
+
+<h4>🎯 Target ICU</h4>
+${target}
+
+<h4>💊 Rekomendasi</h4>
+${rekomendasi}
+
+<h4>🔍 Analisis Faktor</h4>
+<ul>${catatan.map(x=>"<li>"+x+"</li>").join("")}</ul>
+`;
+
+}
+</script>
 
 <!-- APACHE -->
 <div class="card">
