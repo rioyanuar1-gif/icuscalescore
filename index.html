@@ -946,64 +946,76 @@ ${rekomendasi}
 }
 </script>
   
-<button class="btn-primary" onclick="hitung()">🔍 Analisis ICU</button>
-<button class="btn-secondary" onclick="window.print()">📄 Export PDF</button>
 
-<div id="hasil" class="result"></div>
-
-</div>
+<button onclick="cetakPDF()" class="btn-secondary">📄 Export PDF</button>
 
 <script>
+function cetakPDF(){
 
-// scoring sederhana (bisa upgrade nanti)
-function scoreTemp(t){ if(t>=39||t<=30)return 3; return 0;}
-function scoreMAP(m){ if(m<70)return 2; return 0;}
+let nama = document.getElementById("nama").value || "-";
+let rm = document.getElementById("rm").value || "-";
+let hasil = document.getElementById("hasil").innerHTML;
 
-async function hitung(){
+let win = window.open('', '', 'width=900,height=700');
 
-let morse = +m1.value+ +m2.value+ +m3.value+ +m4.value+ +m5.value+ +m6.value;
-let braden = +b1.value+ +b2.value+ +b3.value+ +b4.value+ +b5.value+ +b6.value;
-let rassVal = +rass.value;
-let bps = +p1.value+ +p2.value+ +p3.value;
+win.document.write(`
+<html>
+<head>
+<title>Laporan ICU</title>
 
-let apache = scoreTemp(+temp.value)+scoreMAP(+map.value)+(15-gcs.value);
-
-let mortalitas = apache>20?">40%":apache>10?"10-40%":"<10%";
-
-let rassKet = rassVal<=-3?"Sedasi dalam":rassVal<0?"Sedasi ringan":rassVal==0?"Normal":"Agitasi";
-let bpsKet = bps<=4?"Tidak nyeri":bps<=6?"Nyeri ringan":"Nyeri berat";
-
-hasil.innerHTML = `
-<h2>📋 HASIL ICU</h2>
-
-<div class="${morse>=45?"danger":morse>=25?"warning":"normal"}">Morse: ${morse}</div>
-<div class="${braden<=12?"danger":braden<=16?"warning":"normal"}">Braden: ${braden}</div>
-<div class="${(rassVal>=2||rassVal<=-3)?"danger":"normal"}">RASS: ${rassVal} (${rassKet})</div>
-<div class="${bps>=6?"danger":"normal"}">BPS: ${bps} (${bpsKet})</div>
-<div class="${apache>=20?"danger":"warning"}">APACHE: ${apache}</div>
-
-<h3>📊 Interpretasi</h3>
-Mortalitas: ${mortalitas}
-
-<h3>🤖 AI Dokter ICU</h3>
-<div id="chat" class="chat-box">
-<div class="chat-ai">⏳ Menganalisis...</div>
-</div>
-`;
-
-// AI
-try{
-let res = await fetch("https://icu-ai.onrender.com/ai",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({data:`APACHE ${apache}, RASS ${rassVal}, BPS ${bps}`})
-});
-let json = await res.json();
-
-document.getElementById("chat").innerHTML += `<div class="chat-ai">👨‍⚕️ ${json.result}</div>`;
-}catch{
-document.getElementById("chat").innerHTML += `<div class="chat-ai">AI tidak tersedia</div>`;
+<style>
+body {
+font-family: Arial;
+padding: 30px;
 }
+
+h1 {
+text-align: center;
+margin-bottom: 20px;
+}
+
+.section {
+margin-bottom: 15px;
+}
+
+.box {
+padding: 10px;
+border-radius: 8px;
+margin: 5px 0;
+}
+
+.normal {background:#d4edda;}
+.warning {background:#fff3cd;}
+.danger {background:#f8d7da;}
+
+ul {padding-left:20px;}
+</style>
+
+</head>
+
+<body>
+
+<h1>LAPORAN ICU</h1>
+
+<div class="section">
+<b>Nama:</b> ${nama}<br>
+<b>No RM:</b> ${rm}<br>
+<b>Tanggal:</b> ${new Date().toLocaleString()}
+</div>
+
+<hr>
+
+<div class="section">
+${hasil}
+</div>
+
+</body>
+</html>
+`);
+
+win.document.close();
+win.focus();
+win.print();
 
 }
 </script>
