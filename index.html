@@ -946,112 +946,44 @@ ${rekomendasi}
 }
 </script>
   
-// =====================
-// CETAK PDF MEDIS
-// =====================
-function cetakPDF(){
+<button class="btn-primary" onclick="hitung()">🔍 Analisis ICU</button>
+<button class="btn-secondary" onclick="window.print()">📄 Export PDF</button>
 
-let nama = document.getElementById("nama").value || "-";
-let rm = document.getElementById("rm").value || "-";
+<div id="hasil" class="result"></div>
 
-let isi = document.getElementById("hasil").innerHTML;
-
-let win = window.open("", "", "width=900,height=700");
-
-win.document.write(`
-<html>
-<head>
-<title>Laporan ICU</title>
-<style>
-body{font-family:Arial;padding:30px;}
-h1{text-align:center;}
-.section{margin-top:20px;}
-.box{padding:10px;margin:5px;border-radius:8px;}
-.normal{background:#d4edda;}
-.warning{background:#fff3cd;}
-.danger{background:#f8d7da;}
-</style>
-</head>
-
-<body>
-
-<h1>LAPORAN ICU</h1>
-
-<div class="section">
-<b>Nama:</b> ${nama}<br>
-<b>No RM:</b> ${rm}<br>
-<b>Tanggal:</b> ${new Date().toLocaleString()}
 </div>
 
-<div class="section">
-${isi}
-</div>
+<script>
 
-</body>
-</html>
-`);
+// scoring sederhana (bisa upgrade nanti)
+function scoreTemp(t){ if(t>=39||t<=30)return 3; return 0;}
+function scoreMAP(m){ if(m<70)return 2; return 0;}
 
-win.document.close();
-win.print();
-}
-
-// =====================
-// AI OFFLINE (FALLBACK)
-// =====================
-function analisisOffline(data){
-
-let hasil = [];
-
-if(data.apache >= 20) hasil.push("Kondisi kritis, risiko mortalitas tinggi");
-if(data.rass <= -3) hasil.push("Over sedasi, evaluasi sedatif");
-if(data.rass >= 2) hasil.push("Agitasi, evaluasi nyeri/hipoksia/delirium");
-if(data.bps >= 6) hasil.push("Nyeri belum terkontrol");
-if(data.braden <= 12) hasil.push("Risiko dekubitus tinggi");
-if(data.morse >= 45) hasil.push("Risiko jatuh tinggi");
-
-return hasil.join(". ") + ". Monitor ketat dan evaluasi berkala.";
-}
-
-// =====================
-// ANALISIS UTAMA (UPGRADE)
-// =====================
 async function hitung(){
 
-let morse = +m1.value + +m2.value + +m3.value + +m4.value + +m5.value + +m6.value;
-let braden = +b1.value + +b2.value + +b3.value + +b4.value + +b5.value + +b6.value;
+let morse = +m1.value+ +m2.value+ +m3.value+ +m4.value+ +m5.value+ +m6.value;
+let braden = +b1.value+ +b2.value+ +b3.value+ +b4.value+ +b5.value+ +b6.value;
 let rassVal = +rass.value;
-let bps = +bps1.value + +bps2.value + +bps3.value;
+let bps = +p1.value+ +p2.value+ +p3.value;
 
-let apache = scoreTemp(+temp.value) + scoreMAP(+map.value) + (15 - gcs.value);
+let apache = scoreTemp(+temp.value)+scoreMAP(+map.value)+(15-gcs.value);
 
-// INTERPRETASI
-let mortalitas = apache>20?">40%":apache>10?"10–40%":"<10%";
+let mortalitas = apache>20?">40%":apache>10?"10-40%":"<10%";
 
-// RINGKASAN
-let summary = [];
+let rassKet = rassVal<=-3?"Sedasi dalam":rassVal<0?"Sedasi ringan":rassVal==0?"Normal":"Agitasi";
+let bpsKet = bps<=4?"Tidak nyeri":bps<=6?"Nyeri ringan":"Nyeri berat";
 
-if(morse>=45) summary.push("Risiko jatuh tinggi");
-if(braden<=12) summary.push("Risiko dekubitus tinggi");
-if(rassVal<=-3) summary.push("Over sedasi");
-if(rassVal>=2) summary.push("Agitasi");
-if(bps>=6) summary.push("Nyeri tidak terkontrol");
-if(apache>=20) summary.push("Kondisi kritis");
-
-// OUTPUT
 hasil.innerHTML = `
 <h2>📋 HASIL ICU</h2>
 
-<div class="${morse>=45?"danger":morse>=25?"warning":"normal"}">⚠️ Morse: ${morse}</div>
-<div class="${braden<=12?"danger":braden<=16?"warning":"normal"}">🛏️ Braden: ${braden}</div>
-<div class="${(rassVal>=2||rassVal<=-3)?"danger":"normal"}">🧠 RASS: ${rassVal}</div>
-<div class="${bps>=6?"danger":"normal"}">💢 BPS: ${bps}</div>
-<div class="${apache>=20?"danger":"warning"}">📊 APACHE: ${apache}</div>
+<div class="${morse>=45?"danger":morse>=25?"warning":"normal"}">Morse: ${morse}</div>
+<div class="${braden<=12?"danger":braden<=16?"warning":"normal"}">Braden: ${braden}</div>
+<div class="${(rassVal>=2||rassVal<=-3)?"danger":"normal"}">RASS: ${rassVal} (${rassKet})</div>
+<div class="${bps>=6?"danger":"normal"}">BPS: ${bps} (${bpsKet})</div>
+<div class="${apache>=20?"danger":"warning"}">APACHE: ${apache}</div>
 
 <h3>📊 Interpretasi</h3>
-Mortalitas: <b>${mortalitas}</b>
-
-<h3>🚨 Ringkasan Klinis</h3>
-<ul>${summary.map(s=>`<li>${s}</li>`).join("")}</ul>
+Mortalitas: ${mortalitas}
 
 <h3>🤖 AI Dokter ICU</h3>
 <div id="chat" class="chat-box">
@@ -1059,53 +991,23 @@ Mortalitas: <b>${mortalitas}</b>
 </div>
 `;
 
-// =====================
-// AI ONLINE + FALLBACK
-// =====================
+// AI
 try{
-
 let res = await fetch("https://icu-ai.onrender.com/ai",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-data: `
-Anda adalah dokter ICU.
-Analisis pasien berikut secara klinis singkat:
-
-APACHE: ${apache}
-RASS: ${rassVal}
-BPS: ${bps}
-Morse: ${morse}
-Braden: ${braden}
-
-Berikan:
-1. Kondisi pasien
-2. Masalah utama
-3. Rekomendasi tindakan`
-})
+body:JSON.stringify({data:`APACHE ${apache}, RASS ${rassVal}, BPS ${bps}`})
 });
-
-if(!res.ok) throw new Error();
-
 let json = await res.json();
 
-document.getElementById("chat").innerHTML += 
-`<div class="chat-ai">👨‍⚕️ ${json.result}</div>`;
-
+document.getElementById("chat").innerHTML += `<div class="chat-ai">👨‍⚕️ ${json.result}</div>`;
 }catch{
-
-// FALLBACK AI LOKAL
-let offline = analisisOffline({
-apache, rass: rassVal, bps, morse, braden
-});
-
-document.getElementById("chat").innerHTML += 
-`<div class="chat-ai">⚠️ Offline AI: ${offline}</div>`;
-
+document.getElementById("chat").innerHTML += `<div class="chat-ai">AI tidak tersedia</div>`;
 }
 
 }
 </script>
 
 </body>
+</html>
 </html>
