@@ -1427,7 +1427,7 @@ function cetakPDF(){
 let nama = document.getElementById("nama").value || "-";
 let rm = document.getElementById("rm").value || "-";
 
-let hasil = `  // ✅ GANTI MULAI SINI
+let hasil = `  
 ${document.getElementById("hasilMorse").innerHTML}
 ${document.getElementById("hasilBraden").innerHTML}
 ${document.getElementById("hasilRASS").innerHTML}
@@ -1437,7 +1437,7 @@ ${document.getElementById("hasilAPACHE").innerHTML}
 ${document.getElementById("hasilChumlea").innerHTML}
 ${document.getElementById("hasilKalori").innerHTML}
 ${document.getElementById("hasilGlobal") ? document.getElementById("hasilGlobal").innerHTML : ""}
-`; // ✅ SAMPAI SINI
+`; 
     
 let win = window.open('', '', 'width=900,height=700');
 
