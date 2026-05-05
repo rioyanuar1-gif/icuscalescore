@@ -103,9 +103,7 @@ background:#edf6f9;border-radius:12px;
 <!-- HEADER LOGO (URUTAN SUDAH BENAR) -->
 <div class="header-title">
 
-    <img src="rs-unair-banner.png" class="banner">
-
-    <h1>ICU SMART CDSS</h1>
+    <img src="rs-unair-banner-1.png" class="banner">
 
 </div>
 
@@ -1428,8 +1426,19 @@ function cetakPDF(){
 
 let nama = document.getElementById("nama").value || "-";
 let rm = document.getElementById("rm").value || "-";
-let hasil = document.getElementById("hasil").innerHTML;
 
+let hasil = `  // ✅ GANTI MULAI SINI
+${document.getElementById("hasilMorse").innerHTML}
+${document.getElementById("hasilBraden").innerHTML}
+${document.getElementById("hasilRASS").innerHTML}
+${document.getElementById("hasilBPS").innerHTML}
+${document.getElementById("hasilVAS").innerHTML}
+${document.getElementById("hasilAPACHE").innerHTML}
+${document.getElementById("hasilChumlea").innerHTML}
+${document.getElementById("hasilKalori").innerHTML}
+${document.getElementById("hasilGlobal") ? document.getElementById("hasilGlobal").innerHTML : ""}
+`; // ✅ SAMPAI SINI
+    
 let win = window.open('', '', 'width=900,height=700');
 
 win.document.write(`
