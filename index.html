@@ -1162,13 +1162,16 @@ ${rekomendasi}
 
   <!-- ESTIMASI BB -->
 <div class="card">
-<h3>⚖️ Estimasi Berat Badan (MUAC + Panjang Kaki)</h3>
+<h3>⚖️ Estimasi Berat Badan (Model Chumlea)</h3>
+
+<label>Usia (tahun)</label>
+<input id="usia" type="number" placeholder="Contoh: 45">
+
+<label>Tinggi Lutut / Knee Height (cm)</label>
+<input id="knee" type="number" placeholder="Contoh: 50">
 
 <label>Lingkar Lengan Atas / MUAC (cm)</label>
 <input id="muac" type="number" placeholder="Contoh: 25">
-
-<label>Panjang Kaki / Knee Height (cm)</label>
-<input id="knee" type="number" placeholder="Contoh: 50">
 
 <label>Jenis Kelamin</label>
 <select id="gender">
@@ -1176,72 +1179,129 @@ ${rekomendasi}
 <option value="wanita">Wanita</option>
 </select>
 
-<button onclick="hitungBB()">Hitung Estimasi BB</button>
+<button onclick="hitungChumlea()">Hitung BB (Chumlea)</button>
 
-<div id="hasilBB" class="result"></div>
+<div id="hasilChumlea" class="result"></div>
 </div>
 
 <script>
-function hitungBB(){
+function hitungChumlea(){
 
-let muac = parseFloat(document.getElementById("muac").value);
+let usia = parseFloat(document.getElementById("usia").value);
 let knee = parseFloat(document.getElementById("knee").value);
+let muac = parseFloat(document.getElementById("muac").value);
 let gender = document.getElementById("gender").value;
 
-if(!muac || !knee){
-document.getElementById("hasilBB").innerHTML = "⚠️ Isi semua data";
+if(!usia || !knee || !muac){
+document.getElementById("hasilChumlea").innerHTML = "⚠️ Lengkapi semua data";
 return;
 }
 
-// RUMUS ESTIMASI (kombinasi MUAC + knee height)
-// pendekatan praktis klinis ICU
-let bb = (muac * 3.5) + (knee * 1.2) - 50;
+// ==========================
+// RUMUS CHUMLEA (APPROX ICU)
+// ==========================
+let tb = 0;
+let bb = 0;
 
-// koreksi jenis kelamin
-if(gender === "wanita"){
-bb = bb * 0.95;
+// Estimasi tinggi badan
+if(gender === "pria"){
+tb = (2.02 * knee) - (0.04 * usia) + 64.19;
+bb = (1.1 * muac) + (0.3 * knee) - 20;
+}else{
+tb = (1.83 * knee) - (0.24 * usia) + 84.88;
+bb = (1.0 * muac) + (0.25 * knee) - 18;
 }
 
-// pembulatan
+tb = Math.round(tb);
 bb = Math.round(bb);
 
-// INTERPRETASI
-let kategori = "";
+// ==========================
+// INTERPRETASI KLINIS
+// ==========================
+let diagnosis = "";
 let warna = "";
-let rekomendasi = "";
+let intervensi = "";
+let luaran = "";
 
-// klasifikasi sederhana berbasis MUAC
+// klasifikasi MUAC
 if(muac < 23){
-kategori = "Kemungkinan underweight / malnutrisi";
-warna = "warning";
-rekomendasi = "Evaluasi status nutrisi, pertimbangkan dukungan nutrisi enteral/parenteral";
+diagnosis = "Gangguan Nutrisi: Kurang dari kebutuhan tubuh";
+warna = "danger";
+
+luaran = `
+Status nutrisi membaik (SLKI):
+- Berat badan meningkat
+- Asupan nutrisi adekuat
+- Tidak ada tanda malnutrisi
+`;
+
+intervensi = `
+Intervensi (SIKI):
+- Manajemen Nutrisi
+- Monitor intake-output
+- Kolaborasi pemberian nutrisi enteral/parenteral
+- Edukasi kebutuhan kalori
+`;
 }
 else if(muac <= 32){
-kategori = "Berat badan normal";
+diagnosis = "Status nutrisi dalam batas normal";
 warna = "normal";
-rekomendasi = "Gunakan hasil estimasi untuk dosis obat & cairan";
+
+luaran = `
+Status nutrisi stabil (SLKI):
+- BB stabil
+- Intake adekuat
+`;
+
+intervensi = `
+Intervensi (SIKI):
+- Monitoring nutrisi rutin
+- Pertahankan diet sesuai kebutuhan
+`;
 }
 else{
-kategori = "Kemungkinan overweight / obesitas";
+diagnosis = "Risiko Ketidakseimbangan Nutrisi: Lebih dari kebutuhan";
 warna = "warning";
-rekomendasi = "Hati-hati perhitungan dosis (gunakan adjusted body weight bila perlu)";
+
+luaran = `
+Status metabolik terkontrol (SLKI):
+- BB terkendali
+- Tidak ada komplikasi metabolik
+`;
+
+intervensi = `
+Intervensi (SIKI):
+- Manajemen berat badan
+- Edukasi diet
+- Monitor gula darah & lipid
+`;
 }
 
+// ==========================
 // OUTPUT
-document.getElementById("hasilBB").innerHTML = `
+// ==========================
+document.getElementById("hasilChumlea").innerHTML = `
 <div class="${warna}">
-<h3>📊 HASIL ESTIMASI BB</h3>
-<b>Berat badan: ${bb} kg</b><br>
-Kategori: ${kategori}
+<h3>📊 HASIL CHUMLEA</h3>
+<b>Estimasi BB: ${bb} kg</b><br>
+Estimasi TB: ${tb} cm<br>
+Diagnosis: ${diagnosis}
 </div>
 
 <h4>📌 Interpretasi</h4>
-Estimasi berdasarkan MUAC & panjang kaki (digunakan saat pasien tidak dapat ditimbang)
+Perhitungan menggunakan metode Chumlea (digunakan pada pasien immobilisasi/ICU)
 
-<h4>💊 Rekomendasi Klinis</h4>
-${rekomendasi}
+<h4>🩺 SDKI</h4>
+${diagnosis}
+
+<h4>🎯 SLKI (Luaran)</h4>
+${luaran}
+
+<h4>💊 SIKI (Intervensi)</h4>
+${intervensi}
 
 <h4>📏 Data Input</h4>
+Usia: ${usia} th<br>
 MUAC: ${muac} cm<br>
 Knee Height: ${knee} cm
 `;
