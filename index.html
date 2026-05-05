@@ -10,7 +10,7 @@ body {
     background: url('https://images.unsplash.com/photo-1586773860418-d37222d8fce3') no-repeat center center fixed;
     background-size: cover;
     padding: 20px;
-    position: relative; /* WAJIB */
+    position: relative;
 }
 
 body::before {
@@ -20,10 +20,37 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-
-    background: rgba(255,255,255,0.85); /* warna overlay */
-    
+    background: rgba(255,255,255,0.85);
     z-index: -1;
+}
+
+/* CONTAINER BIAR CENTER */
+.container{
+    max-width:1100px;
+    margin:auto;
+}
+
+/* HEADER LOGO */
+.header{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:30px;
+    margin-bottom:10px;
+}
+
+/* LOGO BIAR SAMA UKURAN */
+.header img{
+    height:70px;
+    width:auto;
+    max-width:150px;
+    object-fit:contain;
+}
+
+/* JUDUL */
+.header-title{
+    text-align:center;
+    margin-bottom:20px;
 }
 
 .grid{
@@ -59,48 +86,17 @@ background:#edf6f9;border-radius:12px;
 .normal{background:#d4edda;padding:8px;border-radius:8px;margin:5px;}
 .warning{background:#fff3cd;padding:8px;border-radius:8px;margin:5px;}
 .danger{background:#f8d7da;padding:8px;border-radius:8px;margin:5px;}
-
-.chat-box{
-margin-top:10px;
-background:white;
-padding:10px;
-border-radius:10px;
-height:200px;
-overflow:auto;
-}
-.chat-ai{
-background:#e0fbfc;
-padding:10px;
-border-radius:10px;
-margin-top:10px;
-}
 </style>
-.header{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:25px;
-    flex-wrap:wrap;
-    margin-bottom:20px;
-}
-
-.header img{
-    height:80px;
-    object-fit:contain;
-}
-
-.header-title{
-    text-align:center;
-}
+</head>
 
 <body>
 <div class="container">
 
-<!-- HEADER LOGO -->
+<!-- HEADER LOGO (URUTAN SUDAH BENAR) -->
 <div class="header">
+    <img src="logo-unair.png" alt="RS UNAIR">
     <img src="logo-paripurna.png" alt="Paripurna">
-    <img src="logo-unair.png" alt="UNAIR">
-    <img src="logo-wecare.png" alt="WE CARE">
+    <img src="logo-wecare.png" alt="WeCare">
 </div>
 
 <div class="header-title">
