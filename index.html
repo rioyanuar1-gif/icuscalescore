@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"> 
 <title>ICU Smart CDSS</title>
 
 <style>
@@ -26,7 +27,7 @@ body::before {
 
 /* CONTAINER BIAR CENTER */
 .container{
-    max-width:1100px;
+    max-width:1000px;
     margin:auto;
 }
 
@@ -60,32 +61,109 @@ body::before {
     border-radius:20px;
     box-shadow:0 6px 18px rgba(0,0,0,0.15);
 }
+.hero-title{
+    text-align:center;
+    margin:15px 0 25px 0;
+}
 
+.main-title{
+    margin:0;
+    font-size:48px;
+    font-weight:800;
+    letter-spacing:1px;
+}
+
+.smart{
+    background:linear-gradient(90deg,#0077b6,#00b4d8);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    text-shadow:0 2px 10px rgba(0,119,182,0.25);
+}
+
+.cdss{
+    background:linear-gradient(90deg,#2b9348,#55a630);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    text-shadow:0 2px 10px rgba(85,166,48,0.25);
+}
+
+.subtitle{
+    margin-top:8px;
+    font-size:15px;
+    color:#555;
+    letter-spacing:0.5px;
+}
+
+.tagline{
+    margin-top:10px;
+    font-size:18px;
+    font-weight:700;
+    color:#0077b6;
+    letter-spacing:1px;
+}
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-gap:15px;
+gap:20px;
 }
 
 .card{
-background:white;
-padding:15px;
-border-radius:12px;
-box-shadow:0 4px 10px rgba(0,0,0,0.05);
+    background:white;
+    padding:12px 16px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+    display:flex;
+    flex-direction:column;
+}
+
+/* khusus identitas */
+.identitas-card{
+    margin-bottom:30px;
 }
 
 label{display:block;margin-top:8px;font-weight:bold;}
 small{font-size:12px;color:#666;}
-select,input{width:100%;padding:7px;margin-top:4px;}
-
+select,
+input{
+    width:100%;
+    padding:7px;
+    margin-top:4px;
+    box-sizing:border-box;
+}
+.card input,
+.card select{
+    display:block;
+    width:100%;
+}
 button{
 width:100%;padding:14px;margin-top:15px;
 border:none;border-radius:10px;
 font-size:16px;
 }
 .btn-primary{background:#0077b6;color:white;}
-.btn-secondary{background:#adb5bd;color:white;}
+.btn-secondary{
+    background:linear-gradient(135deg,#0077b6,#00b4d8);
+    color:white;
+}
+.footer-section{
+    grid-column:1/-1;
+    width:100%;
+    text-align:center;
+    margin-top:50px;
+}
 
+.export-btn{
+    width:280px;
+    margin:0 auto;
+    display:block;
+}
+
+.copyright{
+    margin-top:15px;
+    font-size:13px;
+    color:#666;
+    text-align:center;
+}
 .result{
 margin-top:20px;padding:20px;
 background:#edf6f9;border-radius:12px;
@@ -94,7 +172,88 @@ background:#edf6f9;border-radius:12px;
 .normal{background:#d4edda;padding:8px;border-radius:8px;margin:5px;}
 .warning{background:#fff3cd;padding:8px;border-radius:8px;margin:5px;}
 .danger{background:#f8d7da;padding:8px;border-radius:8px;margin:5px;}
+
+/* ===== MOBILE VIEW ===== */
+@media (max-width:768px){
+
+#nama,
+#rm{
+margin-bottom:8px;
+}
+.main-title{
+    font-size:32px;
+}
+
+.subtitle{
+    font-size:13px;
+}
+
+.tagline{
+    font-size:15px;
+}
+.form-grid{
+    grid-template-columns:1fr;
+}
+.result{
+position:static;
+}
+body{
+    background:#f5f7fa;
+}
+
+.container{
+    width:100%;
+}
+
+.banner{
+    max-width:100%;
+}
+
+h1{
+    font-size:20px;
+}
+
+.grid{
+    grid-template-columns:1fr;
+}
+
+.card{
+    padding:12px;
+}
+
+input,
+select{
+    min-height:50px;
+}
+
+button{
+    padding:16px;
+}
+
+details.card{
+    overflow:hidden;
+    padding:0;
+}
+
+summary{
+    padding:15px;
+    font-weight:bold;
+    font-size:18px;
+    cursor:pointer;
+    background:#f8f9fa;
+}
+
+.card-content{
+padding:15px;
+}
+}
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+}
 </style>
+
 </head>
 
 <body>
@@ -107,11 +266,23 @@ background:#edf6f9;border-radius:12px;
 
 </div>
 
-<div class="header-title">
-    <h1 style="text-align:center;">ICU SMART CDSS</h1>
+<div class="hero-title">
+
+    <h1 class="main-title">
+        ICU <span class="smart">SMART</span> <span class="cdss">CDSS</span>
+    </h1>
+
+    <div class="subtitle">
+        Integrated Clinical Decision Support System for Intensive Care
+    </div>
+
+    <div class="tagline">
+        Predict Risk. Prevent Harm.
+    </div>
+
 </div>
 
-<div class="card">
+<div class="card identitas-card">
 <h3>👤 Identitas</h3>
 <input id="nama" placeholder="Nama">
 <input id="rm" placeholder="No RM">
@@ -165,7 +336,7 @@ background:#edf6f9;border-radius:12px;
 
 <div id="hasilMorse" class="result"></div>
 </div>
-
+    
 <script>
 function hitungMorse(){
 
@@ -968,9 +1139,13 @@ ${interpretasi}
 </script>
 
 <!-- APACHE -->
-<div class="card">
-<h3>📊 APACHE II (Full Clinical)</h3>
+<details class="card">
+<summary>
+📊 APACHE II (Full Clinical)
+</summary>
 
+<div class="card-content">
+    
 <input id="temp" type="number" placeholder="Suhu (°C)">
 <input id="map" type="number" placeholder="MAP (mmHg)">
 <input id="hr" type="number" placeholder="Heart Rate">
@@ -991,12 +1166,14 @@ ${interpretasi}
 <option value="5">Non-operatif / operasi elektif</option>
 <option value="10">Operasi emergensi / syok</option>
 </select>
-
+    
+</div>
+    
 <button onclick="hitungAPACHE()">Hitung APACHE II</button>
 
 <div id="hasilAPACHE" class="result"></div>
-</div>
 
+</details>
 <script>
 
 // =====================
@@ -1419,8 +1596,6 @@ ${rekomendasi}
 </script>
   
 
-<button onclick="cetakPDF()" class="btn-secondary">📄 Export PDF</button>
-
 <script>
 function cetakPDF(){
 
@@ -1447,6 +1622,25 @@ win.document.write(`
 <title>Laporan ICU</title>
 
 <style>
+.main-title{
+    text-align:center;
+    margin-bottom:5px;
+}
+
+.subtitle{
+    text-align:center;
+    font-size:14px;
+    color:#555;
+    margin-bottom:5px;
+}
+
+.tagline{
+    text-align:center;
+    font-size:16px;
+    font-weight:bold;
+    color:#0077b6;
+    margin-bottom:20px;
+}
 body {
 font-family: Arial;
 padding: 30px;
@@ -1502,7 +1696,21 @@ win.print();
 
 }
 </script>
+<!-- FOOTER DI LUAR GRID -->
 
-</body>
-</html>
-</html>
+<div class="footer-section">
+
+    <button onclick="cetakPDF()"
+            class="btn-secondary export-btn">
+        📄 Export PDF
+    </button>
+
+    <div class="copyright">
+        © 2026 ICU SMART CDSS |
+        RS Universitas Airlangga
+    </div>
+</div>   
+
+</div>
+
+
