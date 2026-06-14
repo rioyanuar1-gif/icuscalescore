@@ -115,7 +115,15 @@ gap:20px;
     display:flex;
     flex-direction:column;
 }
+/* SMART ICU SUMMARY */
+.summary-card{
+    grid-column:1/-1;
+    border:3px solid #0077b6;
+}
 
+.summary-card h3{
+    text-align:center;
+}
 /* khusus identitas */
 .identitas-card{
     margin-bottom:30px;
@@ -173,6 +181,19 @@ background:#edf6f9;border-radius:12px;
 .warning{background:#fff3cd;padding:8px;border-radius:8px;margin:5px;}
 .danger{background:#f8d7da;padding:8px;border-radius:8px;margin:5px;}
 
+/* SMART ICU SUMMARY */
+#hasilGlobal{
+font-size:15px;
+line-height:1.7;
+}
+
+#hasilGlobal ul{
+padding-left:20px;
+}
+
+#hasilGlobal li{
+margin-bottom:8px;
+}    
 /* ===== MOBILE VIEW ===== */
 @media (max-width:768px){
 
@@ -514,6 +535,7 @@ ${interpretasi}
 
 `;
 
+generateSummary();
 }
 </script>
   
@@ -755,6 +777,7 @@ ${rekomendasi}
 
 `;
 
+generateSummary();
 }
 </script>
 
@@ -871,6 +894,7 @@ ${target}
 ${rekomendasi}
 `;
 
+generateSummary();
 }
 </script>
 
@@ -983,6 +1007,7 @@ ${rekomendasi}
 <ul>${catatan.map(x=>"<li>"+x+"</li>").join("")}</ul>
 `;
 
+generateSummary();
 }
 </script>
 
@@ -1135,6 +1160,7 @@ ${interpretasi}
 
 `;
 
+generateSummary();
 }
 </script>
 
@@ -1353,8 +1379,9 @@ Semakin tinggi skor → semakin tinggi risiko kematian
 <h4>💊 Rekomendasi</h4>
 ${rekomendasi}
 `;
-
+generateSummary();
 }
+
 </script>
 
   <!-- ESTIMASI BB -->
@@ -1502,6 +1529,8 @@ Usia: ${usia} th<br>
 MUAC: ${muac} cm<br>
 Knee Height: ${knee} cm
 `;
+
+generateSummary();
 }
 </script>
 
@@ -1592,10 +1621,129 @@ ${rekomendasi}
 • Lemak: 20–30%  
 • Protein: 1.2–2 g/kg (ICU bisa lebih tinggi)
 `;
+
+generateSummary();
 }
 </script>
-  
 
+<div class="card summary-card">
+<h3>🏆 SMART ICU CLINICAL SUMMARY</h3>
+
+<button onclick="generateSummary()"
+class="btn-secondary">
+🔍 Generate Clinical Summary
+</button>
+
+<div id="hasilGlobal" class="result">
+
+<div class="warning">
+Klik Generate Clinical Summary
+</div>
+
+</div>
+</div>
+
+<script>
+
+function generateSummary(){
+
+let summary = [];
+
+// PATIENT SAFETY INDEX
+let safetyScore = 100;    
+// MORSE
+let morse = document.getElementById("hasilMorse").innerText;
+
+if(morse.includes("Risiko Tinggi")){
+summary.push("⚠️ Risiko Jatuh Tinggi → Pasang gelang risiko jatuh & supervisi mobilisasi");
+safetyScore -= 20;
+}
+else if(morse.includes("Risiko Sedang")){
+summary.push("🟡 Risiko Jatuh Sedang → Edukasi dan pengawasan mobilisasi");
+}
+
+// BRADEN
+let braden = document.getElementById("hasilBraden").innerText;
+
+if(braden.includes("Sangat Tinggi") || braden.includes("Tinggi")){
+summary.push("🛏️ Risiko Dekubitus Tinggi → Reposisi tiap 2 jam dan kasur anti dekubitus");
+safetyScore -= 20;
+}
+else if(braden.includes("Sedang")){
+summary.push("🛏️ Risiko Dekubitus Sedang → Monitoring integritas kulit");
+}
+
+// RASS
+let rass = document.getElementById("hasilRASS").innerText;
+
+if(rass.includes("Agitasi")){
+summary.push("😡 Pasien agitasi → Evaluasi nyeri, hipoksia, delirium");
+safetyScore -= 10;
+}
+
+if(rass.includes("Sedasi sangat dalam")){
+summary.push("😴 Sedasi terlalu dalam → Evaluasi kebutuhan sedatif");
+safetyScore -= 10;
+}
+
+// BPS
+let bps = document.getElementById("hasilBPS").innerText;
+
+if(bps.includes("Nyeri sedang") ||
+   bps.includes("Nyeri berat")){
+summary.push("💢 Nyeri belum terkontrol → Evaluasi analgesia");
+safetyScore -= 15;
+}
+
+// APACHE
+let apache = document.getElementById("hasilAPACHE").innerText;
+
+if(apache.includes(">75%")){
+summary.push("🚨 Mortalitas sangat tinggi → Intensifikasi monitoring ICU");
+safetyScore -= 30;
+}
+else if(apache.includes("40–55%")){
+summary.push("⚠️ Risiko mortalitas tinggi → Evaluasi terapi harian");
+safetyScore -= 15;
+}
+
+// KALORI
+let kalori = document.getElementById("hasilKalori").innerText;
+
+if(kalori.includes("Kebutuhan tinggi")){
+summary.push("🍽️ Kebutuhan kalori tinggi → Konsultasi nutrisi klinik");
+}
+
+// OUTPUT
+document.getElementById("hasilGlobal").innerHTML = `
+
+<div class="danger">
+<h2>🏆 SMART ICU CLINICAL SUMMARY</h2>
+<b>AI-Assisted Clinical Decision Support</b>
+</div>
+
+<div class="warning">
+<h3>📊 Patient Safety Index</h3>
+<b>${safetyScore}/100</b>
+</div>
+
+<ul>
+${summary.map(x=>"<li>"+x+"</li>").join("")}
+</ul>
+
+<div class="normal">
+✅ Digital Hospital<br>
+✅ Patient Safety<br>
+✅ Patient Centered Care<br>
+✅ Efisiensi Pelayanan<br>
+✅ Budaya Mutu
+</div>
+
+`;
+
+}
+
+</script>
 <script>
 function cetakPDF(){
 
