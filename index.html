@@ -1386,7 +1386,7 @@ generateSummary();
 
   <!-- ESTIMASI BB -->
 <div class="card">
-<h3>⚖️ Estimasi Berat Badan (Model Chumlea)</h3>
+<h3>⚖️ Estimasi Antropometri ICU</h3>
 
 <label>Usia (tahun)</label>
 <input id="usia" type="number" placeholder="Contoh: 45">
@@ -1403,20 +1403,31 @@ generateSummary();
 <option value="wanita">Wanita</option>
 </select>
 
-<button onclick="hitungChumlea()">Hitung BB (Chumlea)</button>
+<button onclick="hitungAntropometri()">
+Hitung Antropometri ICU
+</button>
 
 <div id="hasilChumlea" class="result"></div>
 </div>
 
 <script>
-function hitungChumlea(){
+function hitungAntropometri(){
 
 let usia = parseFloat(document.getElementById("usia").value);
 let knee = parseFloat(document.getElementById("knee").value);
 let muac = parseFloat(document.getElementById("muac").value);
 let gender = document.getElementById("gender").value;
 
-if(!usia || !knee || !muac){
+if(
+isNaN(usia) ||
+isNaN(knee) ||
+isNaN(muac) ||
+usia <= 0 ||
+knee < 30 ||
+knee > 80 ||
+muac < 10 ||
+muac > 60
+){
 document.getElementById("hasilChumlea").innerHTML = "⚠️ Lengkapi semua data";
 return;
 }
@@ -1429,16 +1440,77 @@ let bb = 0;
 
 // Estimasi tinggi badan
 if(gender === "pria"){
-tb = (2.02 * knee) - (0.04 * usia) + 64.19;
-bb = (1.1 * muac) + (0.3 * knee) - 20;
+
+    tb = (2.02 * knee) - (0.04 * usia) + 64.19;
+    bb = (tb - 100) * 0.90;
+
 }else{
-tb = (1.83 * knee) - (0.24 * usia) + 84.88;
-bb = (1.0 * muac) + (0.25 * knee) - 18;
+
+    tb = (1.83 * knee) - (0.24 * usia) + 84.88;
+    bb = (tb - 100) * 0.85;
+
+}
+
+// Koreksi MUAC
+if(muac >= 35){
+    bb += 8;
+}
+else if(muac >= 32){
+    bb += 4;
+}
+else if(muac >= 28){
+    bb += 2;
+}
+else if(muac < 23){
+    bb -= 5;
+}
+else{
+    bb += 0;
 }
 
 tb = Math.round(tb);
 bb = Math.round(bb);
 
+document.getElementById("bb").value = bb;
+
+// HITUNG BMI
+let bmi = bb / Math.pow(tb/100, 2);
+
+// AUTO STATUS NUTRISI
+if(bmi < 18.5){
+    document.getElementById("status").value = "1.1";
+}
+else if(bmi >= 25){
+    document.getElementById("status").value = "0.9";
+}
+else{
+    document.getElementById("status").value = "1";
+}
+
+let statusBMI = "";
+if(bmi < 18.5){
+    statusBMI = "Kurus";
+}
+else if(bmi < 25){
+    statusBMI = "Normal";
+}
+else if(bmi < 30){
+    statusBMI = "Berlebih";
+}
+else{
+    statusBMI = "Obesitas";
+}
+// VALIDASI HASIL
+let warningBMI = "";
+
+if(bmi < 14 || bmi > 45){
+    warningBMI = `
+    <div class="danger">
+    ⚠️ Hasil estimasi BB/TB tampak tidak realistis.
+    Pertimbangkan verifikasi ulang data antropometri.
+    </div>
+    `;
+}
 // ==========================
 // INTERPRETASI KLINIS
 // ==========================
@@ -1447,58 +1519,83 @@ let warna = "";
 let intervensi = "";
 let luaran = "";
 
-// klasifikasi MUAC
-if(muac < 23){
-diagnosis = "Gangguan Nutrisi: Kurang dari kebutuhan tubuh";
-warna = "danger";
+// KLASIFIKASI BERDASARKAN BMI
+if(bmi < 18.5){
 
-luaran = `
+    diagnosis = "Gangguan Nutrisi: Kurang dari kebutuhan tubuh";
+    warna = "danger";
+
+    luaran = `
 Status nutrisi membaik (SLKI):
 - Berat badan meningkat
 - Asupan nutrisi adekuat
 - Tidak ada tanda malnutrisi
 `;
 
-intervensi = `
+    intervensi = `
 Intervensi (SIKI):
 - Manajemen Nutrisi
 - Monitor intake-output
 - Kolaborasi pemberian nutrisi enteral/parenteral
 - Edukasi kebutuhan kalori
 `;
-}
-else if(muac <= 32){
-diagnosis = "Status nutrisi dalam batas normal";
-warna = "normal";
 
-luaran = `
+}
+else if(bmi < 25){
+
+    diagnosis = "Status nutrisi dalam batas normal";
+    warna = "normal";
+
+    luaran = `
 Status nutrisi stabil (SLKI):
 - BB stabil
 - Intake adekuat
 `;
 
-intervensi = `
+    intervensi = `
 Intervensi (SIKI):
 - Monitoring nutrisi rutin
 - Pertahankan diet sesuai kebutuhan
 `;
-}
-else{
-diagnosis = "Risiko Ketidakseimbangan Nutrisi: Lebih dari kebutuhan";
-warna = "warning";
 
-luaran = `
+}
+else if(bmi < 30){
+
+    diagnosis = "Risiko Berat Badan Berlebih";
+    warna = "warning";
+
+    luaran = `
 Status metabolik terkontrol (SLKI):
 - BB terkendali
 - Tidak ada komplikasi metabolik
 `;
 
-intervensi = `
+    intervensi = `
+Intervensi (SIKI):
+- Edukasi diet
+- Monitoring berat badan
+- Monitoring gula darah
+`;
+
+}
+else{
+
+    diagnosis = "Obesitas";
+    warna = "danger";
+
+    luaran = `
+Status metabolik membaik (SLKI):
+- Berat badan menurun bertahap
+- Komplikasi metabolik terkontrol
+`;
+
+    intervensi = `
 Intervensi (SIKI):
 - Manajemen berat badan
-- Edukasi diet
-- Monitor gula darah & lipid
+- Monitoring komplikasi metabolik
+- Kolaborasi ahli gizi
 `;
+
 }
 
 // ==========================
@@ -1506,14 +1603,16 @@ Intervensi (SIKI):
 // ==========================
 document.getElementById("hasilChumlea").innerHTML = `
 <div class="${warna}">
-<h3>📊 HASIL CHUMLEA</h3>
+<h3>📊 HASIL ANTROPOMETRI ICU</h3>
 <b>Estimasi BB: ${bb} kg</b><br>
 Estimasi TB: ${tb} cm<br>
 Diagnosis: ${diagnosis}
 </div>
 
 <h4>📌 Interpretasi</h4>
-Perhitungan menggunakan metode Chumlea (digunakan pada pasien immobilisasi/ICU)
+Perhitungan menggunakan:
+• Estimasi tinggi badan metode Chumlea
+• Estimasi berat badan antropometri ICU berbasis MUAC
 
 <h4>🩺 SDKI</h4>
 ${diagnosis}
@@ -1523,6 +1622,14 @@ ${luaran}
 
 <h4>💊 SIKI (Intervensi)</h4>
 ${intervensi}
+
+<h4>📏 Status Antropometri</h4>
+Estimasi TB: ${tb} cm<br>
+Estimasi BB: ${bb} kg<br>
+BMI: ${bmi.toFixed(1)} kg/m²<br>
+Status BMI: <b>${statusBMI}</b>
+
+${warningBMI}
 
 <h4>📏 Data Input</h4>
 Usia: ${usia} th<br>
