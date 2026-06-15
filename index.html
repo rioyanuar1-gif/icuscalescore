@@ -1741,114 +1741,261 @@ class="btn-secondary">
 🔍 Generate Clinical Summary
 </button>
 
-<div id="hasilGlobal" class="result">
-
-<div class="warning">
-Klik Generate Clinical Summary
-</div>
-
-</div>
+<div id="hasilGlobal" class="result" style="display:none;"></div>
 </div>
 
 <script>
 
 function generateSummary(){
 
-let summary = [];
+let criticalItems = [];
+let highItems = [];
+let moderateItems = [];
+let stableItems = [];
 
+let clinicalFocus = [];
+function addFocus(item){
+    if(!clinicalFocus.includes(item)){
+        clinicalFocus.push(item);
+    }
+}
 // PATIENT SAFETY INDEX
-let safetyScore = 100;    
+let safetyScore = 100;
 // MORSE
 let morse = document.getElementById("hasilMorse").innerText;
 
-if(morse.includes("Risiko Tinggi")){
-summary.push("⚠️ Risiko Jatuh Tinggi → Pasang gelang risiko jatuh & supervisi mobilisasi");
-safetyScore -= 20;
+if(morse.includes("Risiko Rendah")){
+    stableItems.push(`
+    <li>✅ Risiko jatuh rendah</li>
+    `);
 }
-else if(morse.includes("Risiko Sedang")){
-summary.push("🟡 Risiko Jatuh Sedang → Edukasi dan pengawasan mobilisasi");
-}
+if(morse.includes("Risiko Sedang")){
 
+    moderateItems.push(`
+    <li>
+    🚶 Risiko jatuh sedang
+    </li>
+    `);
+
+    addFocus("Pencegahan Jatuh");
+    safetyScore -= 10;
+}
+if(morse.includes("Risiko Tinggi")){
+
+    highItems.push(`
+    <li>
+    🚶 <b>Risiko Jatuh Tinggi</b><br>
+    👉 Tindakan:
+    <ul>
+    <li>Pasang gelang risiko jatuh</li>
+    <li>Pasang label risiko jatuh</li>
+    <li>Side rail terpasang</li>
+    <li>Supervisi mobilisasi</li>
+    </ul>
+    </li>
+    `);
+
+    addFocus("Pencegahan Jatuh");
+    safetyScore -= 20;
+}
 // BRADEN
 let braden = document.getElementById("hasilBraden").innerText;
 
 if(braden.includes("Sangat Tinggi") || braden.includes("Tinggi")){
-summary.push("🛏️ Risiko Dekubitus Tinggi → Reposisi tiap 2 jam dan kasur anti dekubitus");
-safetyScore -= 20;
+highItems.push(`
+<li>
+🛏️ <b>Risiko Dekubitus Tinggi</b><br>
+👉 Tindakan:
+<ul>
+<li>Reposisi q2h</li>
+<li>Kasur anti dekubitus</li>
+<li>Monitoring kulit tiap shift</li>
+<li>Optimalkan nutrisi protein</li>
+</ul>
+</li>
+`);
+    addFocus("Pencegahan Dekubitus");
+    safetyScore -= 20;
 }
-else if(braden.includes("Sedang")){
-summary.push("🛏️ Risiko Dekubitus Sedang → Monitoring integritas kulit");
+if(braden.includes("Rendah")){
+stableItems.push(`
+<li>✅ Risiko dekubitus rendah</li>
+`);
 }
-
 // RASS
 let rass = document.getElementById("hasilRASS").innerText;
 
 if(rass.includes("Agitasi")){
-summary.push("😡 Pasien agitasi → Evaluasi nyeri, hipoksia, delirium");
-safetyScore -= 10;
+criticalItems.push(`
+<li>
+😡 <b>Agitasi Berat</b><br>
+👉 Tindakan:
+<ul>
+<li>Evaluasi nyeri</li>
+<li>Evaluasi hipoksia</li>
+<li>Evaluasi delirium</li>
+<li>Titrasi sedasi</li>
+<li>Target RASS -2 s/d 0</li>
+</ul>
+</li>
+`);
+    addFocus("Optimasi Sedasi");
+    safetyScore -= 10;
 }
 
 if(rass.includes("Sedasi sangat dalam")){
-summary.push("😴 Sedasi terlalu dalam → Evaluasi kebutuhan sedatif");
-safetyScore -= 10;
+criticalItems.push(`
+<li>
+😴 <b>Sedasi Terlalu Dalam</b><br>
+👉 Tindakan:
+<ul>
+<li>Review dosis sedatif</li>
+<li>Daily sedation interruption</li>
+<li>Monitor airway</li>
+<li>Monitor hemodinamik</li>
+</ul>
+</li>
+`);
+addFocus("Optimasi Sedasi");
+    safetyScore -= 10;
 }
-
+if(rass.includes("Dalam target sedasi ICU")){
+stableItems.push(`
+<li>✅ Sedasi dalam target ICU</li>
+`);
+}
 // BPS
 let bps = document.getElementById("hasilBPS").innerText;
 
 if(bps.includes("Nyeri sedang") ||
    bps.includes("Nyeri berat")){
-summary.push("💢 Nyeri belum terkontrol → Evaluasi analgesia");
-safetyScore -= 15;
+criticalItems.push(`
+<li>
+💢 <b>Nyeri Belum Terkontrol</b><br>
+👉 Tindakan:
+<ul>
+<li>Evaluasi sumber nyeri</li>
+<li>Titrasi analgesik</li>
+<li>Re-assessment 30–60 menit</li>
+<li>Target BPS ≤5</li>
+</ul>
+</li>
+`);
+    addFocus("Kontrol Nyeri");
+    safetyScore -= 15;
 }
 
+if(bps.includes("Tidak nyeri")){
+stableItems.push(`
+<li>✅ Nyeri terkontrol</li>
+`);
+}
 // APACHE
 let apache = document.getElementById("hasilAPACHE").innerText;
 
 if(apache.includes(">75%")){
-summary.push("🚨 Mortalitas sangat tinggi → Intensifikasi monitoring ICU");
+criticalItems.push(`
+<li>
+🚨 <b>Risiko Mortalitas Sangat Tinggi</b><br>
+👉 Tindakan:
+<ul>
+<li>Monitoring hemodinamik ketat</li>
+<li>Evaluasi ventilator</li>
+<li>Evaluasi vasopressor</li>
+<li>Daily goal ICU</li>
+<li>Evaluasi fungsi organ harian</li>
+</ul>
+</li>
+`);
+addFocus("Monitoring Kegagalan Organ");
 safetyScore -= 30;
-}
-else if(apache.includes("40–55%")){
-summary.push("⚠️ Risiko mortalitas tinggi → Evaluasi terapi harian");
-safetyScore -= 15;
 }
 
 // KALORI
 let kalori = document.getElementById("hasilKalori").innerText;
 
 if(kalori.includes("Kebutuhan tinggi")){
-summary.push("🍽️ Kebutuhan kalori tinggi → Konsultasi nutrisi klinik");
+moderateItems.push(`
+<li>
+🍽️ <b>Kebutuhan Nutrisi Tinggi</b><br>
+👉 Tindakan:
+<ul>
+<li>Konsultasi nutrisi klinik</li>
+<li>Optimalkan nutrisi enteral</li>
+<li>Monitor residu lambung</li>
+<li>Target protein 1.2–2 g/kgBB</li>
+</ul>
+</li>
+`);
+ addFocus("Optimasi Nutrisi");
 }
+// setelah semua safetyScore -= ...
 
+let escalation = "🟢 ROUTINE";
+
+if(safetyScore <= 80)
+    escalation = "🟡 ENHANCED MONITORING";
+
+if(safetyScore <= 60)
+    escalation = "🟠 HIGH RISK";
+
+if(safetyScore <= 40)
+    escalation = "🔴 CRITICAL";
 // OUTPUT
+document.getElementById("hasilGlobal").style.display = "block";
 document.getElementById("hasilGlobal").innerHTML = `
 
 <div class="danger">
-<h2>🏆 SMART ICU CLINICAL SUMMARY</h2>
+<h2>🚨 SMART ICU CLINICAL SUMMARY</h2>
 <b>AI-Assisted Clinical Decision Support</b>
 </div>
 
 <div class="warning">
-<h3>📊 Patient Safety Index</h3>
-<b>${safetyScore}/100</b>
+<h3>🛡️ Patient Safety Index : ${safetyScore}/100</h3>
 </div>
 
+<div class="danger">
+<h3>🚨 Escalation Level : ${escalation}</h3>
+</div>
+
+<h3>🔴 MASALAH KRITIS YANG MEMERLUKAN TINDAKAN SEGERA</h3>
 <ul>
-${summary.map(x=>"<li>"+x+"</li>").join("")}
+${criticalItems.join("")}
+</ul>
+
+<h3>🟠 PRIORITAS TINGGI</h3>
+<ul>
+${highItems.join("")}
+</ul>
+
+<h3>🟡 PRIORITAS MODERAT</h3>
+<ul>
+${moderateItems.join("")}
+</ul>
+
+<h3>🟢 KONDISI TERKONTROL</h3>
+<ul>
+${stableItems.join("")}
 </ul>
 
 <div class="normal">
-✅ Digital Hospital<br>
-✅ Patient Safety<br>
-✅ Patient Centered Care<br>
-✅ Efisiensi Pelayanan<br>
-✅ Budaya Mutu
+<h3>🎯 CLINICAL ACTION PLAN 24 JAM</h3>
+<ol>
+${clinicalFocus.map(x=>`<li>${x}</li>`).join("")}
+</ol>
 </div>
 
+<div class="normal">
+<b>🎯 Target ICU</b><br>
+• RASS -2 sampai 0<br>
+• BPS ≤5<br>
+• Tidak terjadi jatuh<br>
+• Tidak terjadi luka tekan baru<br>
+• Nutrisi >80% kebutuhan
+</div>
 `;
-
 }
+
 
 </script>
 <script>
