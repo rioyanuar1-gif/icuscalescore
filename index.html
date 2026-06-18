@@ -1335,7 +1335,7 @@ scoreK(+k.value) +
 scoreCr(+cr.value) +
 scoreHct(+hct.value) +
 scoreWBC(+wbc.value) +
-(15 - (+gcs.value))
+(15 - (+gcs.value)) +
 scoreAge(+age.value) +
 +document.getElementById("chronic").value;
 
@@ -1386,7 +1386,7 @@ generateSummary();
 
   <!-- ESTIMASI BB -->
 <div class="card">
-<h3>⚖️ Estimasi Antropometri ICU</h3>
+<h3>⚖️ Estimasi BB/TB</h3>
 
 <label>Usia (tahun)</label>
 <input id="usia" type="number" placeholder="Contoh: 45">
@@ -1742,6 +1742,7 @@ document.getElementById("hasilRASS"),
 document.getElementById("hasilBPS"),
 document.getElementById("hasilVAS"),
 document.getElementById("hasilAPACHE"),
+document.getElementById("hasilChumlea"),
 document.getElementById("hasilKalori")
 ].some(el => el && el.innerHTML.trim() !== "");
 
@@ -1807,7 +1808,7 @@ highItems.push(`
 🛏️ <b>Risiko Dekubitus Tinggi</b><br>
 👉 Tindakan:
 <ul>
-<li>Reposisi q2h</li>
+<li>Reposisi 2 jam sekali</li>
 <li>Kasur anti dekubitus</li>
 <li>Monitoring kulit tiap shift</li>
 <li>Optimalkan nutrisi protein</li>
@@ -1880,6 +1881,37 @@ stableItems.push(`
 <li>✅ Nyeri terkontrol</li>
 `);
 }
+// VAS
+let vas = document.getElementById("hasilVAS").innerText;
+
+if(
+vas.includes("Nyeri Sedang") ||
+vas.includes("Nyeri Berat")
+){
+    criticalItems.push(`
+    <li>
+    😖 <b>Nyeri Berdasarkan VAS Belum Terkontrol</b><br>
+    👉 Tindakan:
+    <ul>
+    <li>Evaluasi sumber nyeri</li>
+    <li>Titrasi analgesik</li>
+    <li>Re-assessment 30 menit</li>
+    </ul>
+    </li>
+    `);
+
+    addFocus("Kontrol Nyeri");
+    safetyScore -= 10;
+}
+
+if(
+vas.includes("Tidak Nyeri") ||
+vas.includes("Nyeri Ringan")
+){
+    stableItems.push(`
+    <li>✅ Nyeri terkontrol (VAS)</li>
+    `);
+}
 // APACHE
 let apache = document.getElementById("hasilAPACHE").innerText;
 
@@ -1940,7 +1972,43 @@ if(!hasilGlobal){
     console.error("hasilGlobal tidak ditemukan");
     return;
 }
+// ANTROPOMETRI
+let antropometri = document.getElementById("hasilChumlea").innerText;
 
+if(antropometri.includes("Gangguan Nutrisi: Kurang")){
+    highItems.push(`
+    <li>
+    ⚖️ <b>Malnutrisi / Underweight</b><br>
+    👉 Tindakan:
+    <ul>
+    <li>Optimalkan nutrisi enteral</li>
+    <li>Konsultasi ahli gizi</li>
+    <li>Monitoring berat badan</li>
+    <li>Target protein 1.2–2 g/kgBB</li>
+    </ul>
+    </li>
+    `);
+
+    addFocus("Optimasi Nutrisi");
+    safetyScore -= 15;
+}
+
+if(antropometri.includes("Obesitas")){
+    moderateItems.push(`
+    <li>
+    ⚖️ Risiko metabolik terkait obesitas
+    </li>
+    `);
+
+    addFocus("Monitoring Metabolik");
+    safetyScore -= 5;
+}
+
+if(antropometri.includes("Status nutrisi dalam batas normal")){
+    stableItems.push(`
+    <li>✅ Status nutrisi normal</li>
+    `);
+}
 // OUTPUT
 document.getElementById("hasilGlobal").style.display = "block";
 document.getElementById("hasilGlobal").innerHTML = `
