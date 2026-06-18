@@ -1441,17 +1441,17 @@ let bb = 0;
 // Estimasi tinggi badan
 // TINGGI BADAN WHO-CHUMLEA
 if(gender === "pria"){
-    tb = (2.02 * knee) - (0.04 * usia) + 64.19;
+    tb = (1.37 * knee) + 95.79;
 
     // BB Mulyasari Pria
-    bb = (3.44 * muac) - 39.41;
+    bb = (2.863 * muac) - 14.533;
 
 }else{
 
-    tb = (1.83 * knee) - (0.24 * usia) + 84.88;
+    tb = (1.96 * knee) + 58.72;
 
     // BB Mulyasari Wanita
-    bb = (2.81 * muac) - 22.04;
+    bb = (2.863 * muac) - (4.019 * 1) - 14.533;
 }
 
 tb = Math.round(tb);
