@@ -1417,20 +1417,6 @@ let knee = parseFloat(document.getElementById("knee").value);
 let muac = parseFloat(document.getElementById("muac").value);
 let gender = document.getElementById("gender").value;
 
-if(
-isNaN(usia) ||
-isNaN(knee) ||
-isNaN(muac) ||
-usia <= 0 ||
-knee < 30 ||
-knee > 80 ||
-muac < 10 ||
-muac > 60
-){
-document.getElementById("hasilChumlea").innerHTML = "⚠️ Lengkapi semua data";
-return;
-}
-
 // ==========================
 // RUMUS CHUMLEA (APPROX ICU)
 // ==========================
@@ -1623,7 +1609,6 @@ Status BMI: <b>${statusBMI}</b>
 ${warningBMI}
 
 <h4>📏 Data Input</h4>
-Usia: ${usia} th<br>
 MUAC: ${muac} cm<br>
 Knee Height: ${knee} cm
 `;
