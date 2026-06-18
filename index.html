@@ -1439,33 +1439,19 @@ let tb = 0;
 let bb = 0;
 
 // Estimasi tinggi badan
+// TINGGI BADAN WHO-CHUMLEA
 if(gender === "pria"){
-
     tb = (2.02 * knee) - (0.04 * usia) + 64.19;
-    bb = (tb - 100) * 0.90;
+
+    // BB Mulyasari Pria
+    bb = (3.44 * muac) - 39.41;
 
 }else{
 
     tb = (1.83 * knee) - (0.24 * usia) + 84.88;
-    bb = (tb - 100) * 0.85;
 
-}
-
-// Koreksi MUAC
-if(muac >= 35){
-    bb += 8;
-}
-else if(muac >= 32){
-    bb += 4;
-}
-else if(muac >= 28){
-    bb += 2;
-}
-else if(muac < 23){
-    bb -= 5;
-}
-else{
-    bb += 0;
+    // BB Mulyasari Wanita
+    bb = (2.81 * muac) - 22.04;
 }
 
 tb = Math.round(tb);
@@ -1611,8 +1597,8 @@ Diagnosis: ${diagnosis}
 
 <h4>📌 Interpretasi</h4>
 Perhitungan menggunakan:
-• Estimasi tinggi badan metode Chumlea
-• Estimasi berat badan antropometri ICU berbasis MUAC
+• Estimasi Tinggi Badan WHO (Knee Height)
+• Estimasi Berat Badan Mulyasari (MUAC)
 
 <h4>🩺 SDKI</h4>
 ${diagnosis}
