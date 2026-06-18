@@ -1335,7 +1335,7 @@ scoreK(+k.value) +
 scoreCr(+cr.value) +
 scoreHct(+hct.value) +
 scoreWBC(+wbc.value) +
-(15 - gcs.value) +
+(15 - (+gcs.value))
 scoreAge(+age.value) +
 +document.getElementById("chronic").value;
 
@@ -1734,12 +1734,16 @@ class="btn-secondary">
 <script>
 
 function generateSummary(){
-let adaData =
-document.getElementById("hasilMorse").innerText ||
-document.getElementById("hasilBraden").innerText ||
-document.getElementById("hasilRASS").innerText ||
-document.getElementById("hasilBPS").innerText ||
-document.getElementById("hasilAPACHE").innerText;
+
+let adaData = [
+document.getElementById("hasilMorse"),
+document.getElementById("hasilBraden"),
+document.getElementById("hasilRASS"),
+document.getElementById("hasilBPS"),
+document.getElementById("hasilVAS"),
+document.getElementById("hasilAPACHE"),
+document.getElementById("hasilKalori")
+].some(el => el && el.innerHTML.trim() !== "");
 
 if(!adaData){
     alert("Hitung minimal satu instrumen terlebih dahulu");
@@ -1775,6 +1779,7 @@ if(morse.includes("Risiko Sedang")){
     `);
 
     addFocus("Pencegahan Jatuh");
+    safetyScore -= 25;
 }
 if(morse.includes("Risiko Tinggi")){
 
@@ -1823,41 +1828,28 @@ let rass = document.getElementById("hasilRASS").innerText;
 if(
 rass.includes("Agitasi berat") ||
 rass.includes("Sangat agitasi")
-)
-criticalItems.push(`
-<li>
-😡 <b>Agitasi Berat</b><br>
-👉 Tindakan:
-<ul>
-<li>Evaluasi nyeri</li>
-<li>Evaluasi hipoksia</li>
-<li>Evaluasi delirium</li>
-<li>Titrasi sedasi</li>
-<li>Target RASS -2 s/d 0</li>
-</ul>
-</li>
-`);
+){
+    criticalItems.push(`
+    <li>
+    😡 <b>Agitasi Berat</b>
+    </li>
+    `);
+
     addFocus("Optimasi Sedasi");
     safetyScore -= 10;
 }
 
 if(rass.includes("Sedasi sangat dalam")){
-criticalItems.push(`
-<li>
-😴 <b>Sedasi Terlalu Dalam</b><br>
-👉 Tindakan:
-<ul>
-<li>Review dosis sedatif</li>
-<li>Daily sedation interruption</li>
-<li>Monitor airway</li>
-<li>Monitor hemodinamik</li>
-</ul>
-</li>
-`);
-addFocus("Optimasi Sedasi");
+    criticalItems.push(`
+    <li>
+    😴 <b>Sedasi Terlalu Dalam</b>
+    </li>
+    `);
+
+    addFocus("Optimasi Sedasi");
     safetyScore -= 10;
 }
-if(rass.includes("Dalam target sedasi ICU")){
+if(rass.includes("target sedasi ICU")){
 stableItems.push(`
 <li>✅ Sedasi dalam target ICU</li>
 `);
@@ -1880,6 +1872,7 @@ criticalItems.push(`
 </li>
 `);
     addFocus("Kontrol Nyeri");
+    safetyScore -= 15;
 }
 
 if(bps.includes("Tidak nyeri")){
@@ -1890,7 +1883,10 @@ stableItems.push(`
 // APACHE
 let apache = document.getElementById("hasilAPACHE").innerText;
 
-if(apache.includes(">75%")){
+if(
+apache.includes("75%") ||
+apache.includes("40–55%")
+){
 criticalItems.push(`
 <li>
 🚨 <b>Risiko Mortalitas Sangat Tinggi</b><br>
@@ -1905,6 +1901,7 @@ criticalItems.push(`
 </li>
 `);
 addFocus("Monitoring Kegagalan Organ");
+safetyScore -= 25;
 }
 
 // KALORI
@@ -1937,6 +1934,13 @@ if(safetyScore <= 60)
 
 if(safetyScore <= 40)
     escalation = "🔴 CRITICAL";
+const hasilGlobal = document.getElementById("hasilGlobal");
+
+if(!hasilGlobal){
+    console.error("hasilGlobal tidak ditemukan");
+    return;
+}
+
 // OUTPUT
 document.getElementById("hasilGlobal").style.display = "block";
 document.getElementById("hasilGlobal").innerHTML = `
