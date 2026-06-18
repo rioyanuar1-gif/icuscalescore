@@ -1736,8 +1736,6 @@ function addFocus(item){
         clinicalFocus.push(item);
     }
 }
-// PATIENT SAFETY INDEX
-let safetyScore = 100;
 // MORSE
 let morse = document.getElementById("hasilMorse").innerText;
 
@@ -1755,7 +1753,6 @@ if(morse.includes("Risiko Sedang")){
     `);
 
     addFocus("Pencegahan Jatuh");
-    safetyScore -= 10;
 }
 if(morse.includes("Risiko Tinggi")){
 
@@ -1773,7 +1770,6 @@ if(morse.includes("Risiko Tinggi")){
     `);
 
     addFocus("Pencegahan Jatuh");
-    safetyScore -= 20;
 }
 // BRADEN
 let braden = document.getElementById("hasilBraden").innerText;
@@ -1859,7 +1855,6 @@ criticalItems.push(`
 </li>
 `);
     addFocus("Kontrol Nyeri");
-    safetyScore -= 15;
 }
 
 if(bps.includes("Tidak nyeri")){
@@ -1885,7 +1880,6 @@ criticalItems.push(`
 </li>
 `);
 addFocus("Monitoring Kegagalan Organ");
-safetyScore -= 30;
 }
 
 // KALORI
@@ -1927,9 +1921,6 @@ document.getElementById("hasilGlobal").innerHTML = `
 <b>AI-Assisted Clinical Decision Support</b>
 </div>
 
-<div class="warning">
-<h3>🛡️ Patient Safety Index : ${safetyScore}/100</h3>
-</div>
 
 <div class="danger">
 <h3>🚨 Escalation Level : ${escalation}</h3>
